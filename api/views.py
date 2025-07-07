@@ -6,7 +6,7 @@ from .models import AssessmentResult
 from .serializers import AssessmentResultSerializer
 
 # 用于创建新结果 (处理POST请求)
-class ResultCreateView(generics.CreateAPIView):
+class ResultCreateView(generics.ListCreateAPIView): 
     queryset = AssessmentResult.objects.all()
     serializer_class = AssessmentResultSerializer
 
