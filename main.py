@@ -1,1 +1,2 @@
-#include <iostream>
+# include <iostream>
+print(1)
