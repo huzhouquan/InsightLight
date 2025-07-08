@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏选择</title>
+    <style>
+        :root {
+            --primary-color: #000;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-orange: #f97316;
+            --accent-purple: #8b5cf6;
+            --accent-yellow: #eab308;
+            --accent-pink: #ec4899;
+            --accent-indigo: #6366f1;
+            --accent-cyan: #06b6d4;
+            --card-bg: #f8fafc;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, 
+                        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: white;
+            color: var(--primary-color);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+            -webkit-text-fill-color: transparent;
+        }
+
+        .grid-container {
+            display: grid;
+            gap: 2.5rem;
+            flex: 1;
+            align-items: start;
+        }
+
+        /* 桌面端布局 */
+        @media (min-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, auto);
+            }
+        }
+
+        /* 移动端布局 */
+        @media (max-width: 767px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(4, auto);
+            }
+            
+            .enter-btn {
+                font-size: 1.2rem !important;
+                padding: 1rem 1.8rem !important;
+            }
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform var(--transition-speed) ease-in-out, 
+                        box-shadow var(--transition-speed) ease-in-out;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            width: calc(100% + 4px);
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-gradient));
+            border-radius: 1.5rem 1.5rem 0 0;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .game-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            color: var(--primary-color);
+            position: relative;
+        }
+
+        .game-name::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gradient));
+        }
+
+        .score {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            min-height: 1.5em;
+        }
+
+        .enter-btn {
+            background: linear-gradient(45deg, var(--accent-gradient));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease-in-out;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enter-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 11%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .enter-btn:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(4);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 颜色变体 */
+        .card-1 { --accent-gradient: #3b82f6, #6366f1; }
+        .card-2 { --accent-gradient: #8b5cf6, #ec4899; }
+        .card-3 { --accent-gradient: #f97316, #eab308; }
+        .card-4 { --accent-gradient: #10b981, #34d399; }
+        .card-5 { --accent-gradient: #0ea5e9, #60a5fa; }
+        .card-6 { --accent-gradient: #ef4444, #f87171; }
+        .card-7 { --accent-gradient: #7c3aed, #a78bfa; }
+        .card-8 { --accent-gradient: #06b6d4, #3b82f6; } /* 新增测试卡片颜色 */
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>游戏选择</h1>
+    </header>
+    
+    <div class="grid-container">
+        <!-- 新增的完整测试区块 -->
+        <div class="game-card card-8">
+            <div class="game-name">完整测试</div>
+            <div class="score">已完成：100分</div>
+            <button class="enter-btn">进入</button>
+        </div>
+        
+        <!-- 原有游戏卡片 -->
+        <div class="game-card card-1">
+            <div class="game-name">游戏1</div>
+            <div class="score">已完成：95分</div>
+            <button class="enter-btn">进入</button>
+        </div>
+        
+        <div class="game-card card-2">
+            <div class="game-name">游戏2</div>
+            <div class="score">已完成：88分</div>
+            <button class="enter-btn">进入</button>
+        </div>
+        
+        <div class="game-card card-3">
+            <div class="game-name">游戏3</div>
+            <div class="score">未完成</div>
+            <button class="enter-btn">进入</button>
+        </div>
+        
+        <div class="game-card card-4">
+            <div class="game-name">游戏4</div>
+            <div class="score">已完成：92分</div>
+            <button class="enter-btn">进入</button>
+        </div>
+        
+        <div class="game-card card-5">
+            <div class="game-name">游戏5</div>
+            <div class="score">未完成</div>
+            <button class="enter-btn">进入</button>
+        </div>
+        
+        <div class="game-card card-6">
+            <div class="game-name">游戏6</div>
+            <div class="score">已完成：85分</div>
+            <button class="enter-btn">进入</button>
+        </div>
+        
+        <div class="game-card card-7">
+            <div class="game-name">游戏7</div>
+            <div class="score">未完成</div>
+            <button class="enter-btn">进入</button>
+        </div>
+    </div>
+
+    <script>
+        function navigateToGame() {
+            // 这里可以替换为实际的页面跳转逻辑
+            window.location.href = "#game";
+        }
+    </script>
+</body>
+</html>
