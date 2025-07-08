@@ -1,32 +1,17 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>游戏选择</title>
     <style>
+        /* CSS 样式部分 */
         :root {
-            /* 颜色 */
-            --primary-color: #000;
-            --accent-color-blue: #3b82f6;
-            --accent-color-green: #10b981;
-            --accent-color-orange: #f97316;
-            --accent-color-purple: #8b5cf6;
-            --accent-color-pink: #ec4899;
-            --card-bg: #ffffff;
-            --score-color: #64748b;
-
-            /* 字体与尺寸 */
             --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-                          Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            --header-font-size: 2.5rem;
-            --game-name-font-size: 1.5rem;
-            --score-font-size: 1rem;
-            --button-font-size: 1.1rem;
-
-            /* 响应式断点 */
-            --desktop-min-width: 768px;
-            --mobile-max-width: 767px;
+                         Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
         }
 
         * {
@@ -38,8 +23,8 @@
 
         body {
             min-height: 100vh;
-            background: white;
-            color: var(--primary-color);
+            background: #f8fafc;
+            color: var(--text-color);
             padding: 2rem;
             display: flex;
             flex-direction: column;
@@ -51,27 +36,34 @@
         }
 
         h1 {
-            font-size: var(--header-font-size);
+            font-size: 2.5rem;
             font-weight: 700;
-            letter-spacing: 2px;
-            background: linear-gradient(45deg, var(--accent-color-blue), var(--accent-color-purple), var(--accent-color-pink));
-            -webkit-text-fill-color: transparent;
         }
 
         .grid-container {
             display: grid;
-            gap: 2.5rem;
-            flex: 1;
-            align-items: start;
+            gap: 1.5rem; /* 间距 */
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        @media (min-width: var(--desktop-min-width)) {
+        /* 桌面端布局: 4列 */
+        @media (min-width: 992px) {
             .grid-container {
                 grid-template-columns: repeat(4, 1fr);
             }
         }
+        
+        /* 平板端布局: 3列 */
+        @media (min-width: 768px) and (max-width: 991px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
 
-        @media (max-width: var(--mobile-max-width)) {
+        /* 移动端布局: 2列 */
+        @media (max-width: 767px) {
             .grid-container {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -79,178 +71,98 @@
 
         .game-card {
             background: var(--card-bg);
-            border-radius: 1.5rem;
-            padding: 2rem;
+            border-radius: 1rem;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 5px solid; /* 使用 border-top 来显示颜色条 */
         }
 
         .game-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
+        
+        /* 颜色区分 */
+        .card-1 { border-color: #3b82f6; } /* 蓝色 */
+        .card-2 { border-color: #10b981; } /* 绿色 */
+        .card-3 { border-color: #f97316; } /* 橙色 */
+        .card-4 { border-color: #8b5cf6; } /* 紫色 */
+        .card-5 { border-color: #ec4899; } /* 粉色 */
+        .card-6 { border-color: #eab308; } /* 黄色 */
+        .card-7 { border-color: #ef4444; } /* 红色 */
 
         .game-name {
-            font-size: var(--game-name-font-size);
-            font-weight: 700;
-            margin-bottom: 1.2rem;
-        }
-
-        .score {
-            font-size: var(--score-font-size);
-            color: var(--score-color);
-            margin-bottom: 2rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            flex-grow: 1; /* 让标题占据多余空间，使按钮对齐 */
         }
 
         .enter-btn {
-            background: linear-gradient(45deg, var(--accent-gradient));
+            background-color: #4a5568;
             color: white;
             border: none;
-            padding: 0.8rem 1.5rem;
-            font-size: var(--button-font-size);
-            font-weight: 600;
-            border-radius: 9999px;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 9999px; /* 胶囊形状 */
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
+            text-decoration: none; /* 去除链接下划线 */
+            display: inline-block;
+            transition: background-color 0.3s ease;
         }
 
-        .enter-btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 11%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
+        .enter-btn:hover {
+            background-color: #2d3748;
         }
 
-        .enter-btn:active::after {
-            animation: ripple 0.6s ease-out;
-        }
-
-        @keyframes ripple {
-            to {
-                transform: translate(-50%, -50%) scale(4);
-                opacity: 0;
-            }
-        }
     </style>
 </head>
 <body>
     <header>
-        <h1 id="page-title"></h1>
+        <h1>游戏选择</h1>
     </header>
 
-    <div class="grid-container" id="game-grid">
-        <!-- 卡片由 JS 动态插入 -->
+    <div class="grid-container">
+        <div class="game-card card-1">
+            <div class="game-name">游戏一</div>
+            <a href="{% url 'game1' %}" class="enter-btn">进入</a>
+        </div>
+        
+        <div class="game-card card-2">
+            <div class="game-name">游戏二</div>
+            <a href="{% url 'game2' %}" class="enter-btn">进入</a>
+        </div>
+        
+        <div class="game-card card-3">
+            <div class="game-name">游戏三</div>
+            <a href="{% url 'game3' %}" class="enter-btn">进入</a>
+        </div>
+        
+        <div class="game-card card-4">
+            <div class="game-name">游戏四</div>
+            <a href="{% url 'game4' %}" class="enter-btn">进入</a>
+        </div>
+        
+        <div class="game-card card-5">
+            <div class="game-name">游戏五</div>
+            <a href="{% url 'game5' %}" class="enter-btn">进入</a>
+        </div>
+        
+        <div class="game-card card-6">
+            <div class="game-name">游戏六</div>
+            <a href="{% url 'game6' %}" class="enter-btn">进入</a>
+        </div>
+        
+        <div class="game-card card-7">
+            <div class="game-name">游戏七</div>
+            <a href="{% url 'game7' %}" class="enter-btn">进入</a>
+        </div>
     </div>
-
-    <script>
-        // 配置数据
-        const config = {
-            pageTitle: "游戏选择",
-            buttonText: "进入",
-            games: [
-                {
-                    id: 0,
-                    name: "完整测试",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 1,
-                    name: "日期游戏",
-                    score: null,
-                    status:"未完成"
-                },
-                {
-                    id: 2,
-                    name: "匹配游戏",
-                    score: null,
-                    status:"未完成"
-                },
-                {
-                    id: 3,
-                    name: "记忆棋盘",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 4,
-                    name: "连连看",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 5,
-                    name: "语言游戏",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 6,
-                    name: "分类游戏",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 7,
-                    name: "延迟回忆",
-                    score: null,
-                    status: "未完成"
-                }
-            ],
-            colors: [
-                "var(--accent-color-blue), var(--accent-color-purple)",
-                "var(--accent-color-purple), var(--accent-color-pink)",
-                "var(--accent-color-orange)",
-                "var(--accent-color-green), #34d399",
-                "#0ea5e9, #60a5fa",
-                "#ef4444, #f87171",
-                "#7c3aed, #a78bfa",
-                " var(--accent-color-blue)"
-            ]
-        };
-
-        // 设置页面标题
-        document.getElementById('page-title').textContent = config.pageTitle;
-
-        // 动态生成卡片
-        const gameGrid = document.getElementById("game-grid");
-
-        config.games.forEach((game, index) => {
-            const card = document.createElement("div");
-            card.className = `game-card card-${index + 1}`;
-            card.style.setProperty('--accent-gradient', config.colors[index % config.colors.length]);
-
-            const scoreText = game.score ? `已完成：${game.score}` : "未完成";
-
-            card.innerHTML = `
-                <div class="game-name">${game.name}</div>
-                <div class="score">${scoreText}</div>
-                <button class="enter-btn" aria-label="进入 ${game.name}" onclick="navigateToGame(${game.id})">${config.buttonText}</button>
-            `;
-
-            gameGrid.appendChild(card);
-        });
-
-        // 跳转函数
-        function navigateToGame(gameId) {
-            // 示例跳转路径
-            window.location.href = `game${gameId}.html`;
-        }
-    </script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html>
     <head>
         <meta charset="UTF-8">
@@ -24,8 +25,32 @@
         <button onclick="checkDate()">确认日期</button>
         <p id="result"></p>
     </body>
+    <!-- <script src="{% static 'jquery-3.7.1.min.js' %}"></script> -->
+      <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script >
 
-    <script>
+        //函数
+        var id="3d24ca25-977e-44c2-92b6-edb97d380d97"
+        var score
+        function updateResult(resultId, dataToUpdate) {
+    // 示例:
+    // const resultId = 'a1b2c3d4-e5f6-...';
+    // const dataToUpdate = { memory: 99, attention: 90 };
+
+    $.ajax({
+        url: `http://127.0.0.1:8000/api/results/${resultId}/`, // URL中包含ID
+        type: 'PATCH', // 使用 PATCH 方法进行部分更新
+        contentType: 'application/json',
+        data: JSON.stringify(dataToUpdate),
+        success: function(response) {
+            console.log('更新成功!', response);
+            alert('结果更新成功！');
+        },
+        error: function(error) {
+            console.error('更新失败:', error);
+        }
+    });
+}
             // 初始化年份、月份和日期的下拉菜单
         function initializeSelectors() {
             const yearSelect = document.getElementById('yearSelect');
@@ -87,13 +112,23 @@
         if (year === currentYear.toString() && month === currentMonth && day === currentDay) {
             document.getElementById('result').innerText = '选择的日期与当前日期相同！';
             document.getElementById('result').style.color = 'green';
+            var ans=1
+            score=100
+            dataToUpdate = { "orientation": score};
+            updateResult(id, dataToUpdate)
         } else {
             document.getElementById('result').innerText = '选择的日期与当前日期不同！';
             document.getElementById('result').style.color = 'red';
+            var ans=0
+            score=0
+            dataToUpdate = { "orientation": score};
+            updateResult(id, dataToUpdate)
         }
         }
+
 
         // 初始化下拉菜单
         initializeSelectors();
         </script>
+        
 </html>
