@@ -7,7 +7,7 @@
     <style>
         :root {
             --primary-color: #000;
-            --accent-color: #f97316;
+            --accent-color: #eb6e14;
             --transition-speed: 0.3s;
         }
 
@@ -25,7 +25,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: white;
+            background: rgb(255, 214, 151);
             color: var(--primary-color);
             padding: 2rem;
             animation: fadeIn 0.8s ease-out;
@@ -66,7 +66,7 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(100px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -99,7 +99,7 @@
             window.location.href = "#next";
         }
 
-        // 添加动态背景效果（可选）
+        // 我要动态背景效果
         document.addEventListener('DOMContentLoaded', () => {
             const body = document.body;
             let timeoutId;
