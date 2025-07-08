@@ -2,6 +2,8 @@
 
 [Zh_cn 项目简介](项目简介.md) 
 
+The English version of this document is translated from the Chinese document, and the Chinese document is the final authority.
+
 ### Mission:
 Replace traditional scale methods by using mini-games to detect the condition of Alzheimer's patients and provide results to aid in treatment.  
 It can also improve memory, attention, executive function, reaction speed, and visuospatial abilities in Alzheimer's patients through various mini-games.  
