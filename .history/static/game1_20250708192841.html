@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+{% load static %} <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>日期判断</title>
+    </head>
+    <body>
+        <h1>日期判断</h1>
+        <p>请输入今天的日期</p>
+        <select id="yearSelect"></select>
+        <i>年</i>
+        <select id="monthSelect"></select>
+        <i>月</i>
+        <select id="daySelect"></select>
+        <i>日</i>
+        <button id="checkDateBtn">确认日期</button> <p id="result"></p>
+
+        <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+        
+        <script>
+        // 使用 $(document).ready() 来确保所有HTML元素加载完毕后再执行JS
+        $(document).ready(function() {
+            
+            // 将你所有的函数和逻辑都放在这里面...
+
+            var id = "3d24ca25-977e-44c2-92b6-edb97d380d97"; // 示例ID
+
+            function updateResult(resultId, dataToUpdate) {
+                $.ajax({
+                    url: `http://127.0.0.1:8000/api/results/${resultId}/`,
+                    type: 'PATCH',
+                    contentType: 'application/json',
+                    data: JSON.stringify(dataToUpdate),
+                    success: function(response) {
+                        console.log('更新成功!', response);
+                        alert('结果更新成功！');
+                    },
+                    error: function(error) {
+                        console.error('更新失败:', error);
+                    }
+                });
+            }
+
+            function initializeSelectors() {
+                const yearSelect = $('#yearSelect');
+                const monthSelect = $('#monthSelect');
+                const daySelect = $('#daySelect');
+
+                const currentYear = new Date().getFullYear();
+                for (let year = currentYear; year >= currentYear - 100; year--) {
+                    yearSelect.append(`<option value="${year}">${year}</option>`);
+                }
+                for (let month = 1; month <= 12; month++) {
+                    monthSelect.append(`<option value="${String(month).padStart(2, '0')}">${month}</option>`);
+                }
+
+                function updateDays() {
+                    const year = yearSelect.val();
+                    const month = monthSelect.val();
+                    const daysInMonth = new Date(year, month, 0).getDate();
+                    daySelect.html('');
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        daySelect.append(`<option value="${String(day).padStart(2, '0')}">${day}</option>`);
+                    }
+                }
+                updateDays();
+                yearSelect.on('change', updateDays);
+                monthSelect.on('change', updateDays);
+            }
+
+            function checkDate() {
+                const year = $('#yearSelect').val();
+                const month = $('#monthSelect').val();
+                const day = $('#daySelect').val();
+                const today = new Date();
+                let score = 0;
+
+                if (year == today.getFullYear() && month == (today.getMonth() + 1) && day == today.getDate()) {
+                    $('#result').text('选择的日期与当前日期相同！').css('color', 'green');
+                    score = 100;
+                } else {
+                    $('#result').text('选择的日期与当前日期不同！').css('color', 'red');
+                    score = 0;
+                }
+                const dataToUpdate = { "orientation": score };
+                updateResult(id, dataToUpdate);
+            }
+            
+            // 绑定事件
+            $('#checkDateBtn').on('click', checkDate);
+
+            // 初始化下拉菜单
+            initializeSelectors();
+        });
+        </script>
+    </body>
+</html>

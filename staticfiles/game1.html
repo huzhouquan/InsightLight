@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>日期判断</title>
+        
+    </head>
+
+    <body>
+        <h1>日期判断</h1>
+        <p>请输入今天的日期</p>
+        <select id="yearSelect" onload="initializeSelectors()">
+            <option></option>
+        </select>
+        <i>年</i>
+        <select id="monthSelect">
+            
+        </select>
+        <i>月</i>
+        <select id="daySelect" >
+            <option></option>
+        </select>
+        <i>日</i>
+        <button onclick="checkDate()">确认日期</button>
+        <p id="result"></p>
+    </body>
+    <!-- <script src="{% static 'jquery-3.7.1.min.js' %}"></script> -->
+      <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script >
+
+        //函数
+        var id="3d24ca25-977e-44c2-92b6-edb97d380d97"
+        var score
+        function updateResult(resultId, dataToUpdate) {
+    // 示例:
+    // const resultId = 'a1b2c3d4-e5f6-...';
+    // const dataToUpdate = { memory: 99, attention: 90 };
+
+    $.ajax({
+        url: `http://127.0.0.1:8000/api/results/${resultId}/`, // URL中包含ID
+        type: 'PATCH', // 使用 PATCH 方法进行部分更新
+        contentType: 'application/json',
+        data: JSON.stringify(dataToUpdate),
+        success: function(response) {
+            console.log('更新成功!', response);
+            alert('结果更新成功！');
+        },
+        error: function(error) {
+            console.error('更新失败:', error);
+        }
+    });
+}
+            // 初始化年份、月份和日期的下拉菜单
+        function initializeSelectors() {
+            const yearSelect = document.getElementById('yearSelect');
+            const monthSelect = document.getElementById('monthSelect');
+            const daySelect = document.getElementById('daySelect');
+
+            // 填充年份选项（假设从当前年份开始，往前100年）
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year >= currentYear - 100; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.text = year;
+                yearSelect.appendChild(option);
+            }
+
+            // 填充月份选项
+            for (let month = 1; month <= 12; month++) {
+                const option = document.createElement('option');
+                option.value = String(month).padStart(2, '0');
+                option.text = month;
+                monthSelect.appendChild(option);
+            }
+
+            // 填充日期选项（根据选择的年月动态生成）
+            function updateDays() {
+                const year = yearSelect.value;
+                const month = monthSelect.value;
+                const daysInMonth = new Date(year, month, 0).getDate(); // 获取该月的天数
+                daySelect.innerHTML = ''; // 清空当前的日期选项
+                for (let day = 1; day <= daysInMonth; day++) {
+                const option = document.createElement('option');
+                option.value = String(day).padStart(2, '0');
+                option.text = day;
+                daySelect.appendChild(option);
+                }
+            }
+
+            // 初始化日期选项
+            updateDays();
+
+            // 监听年份和月份的变化，动态更新日期选项
+            yearSelect.addEventListener('change', updateDays);
+            monthSelect.addEventListener('change', updateDays);
+        }
+
+        // 检查日期是否与当前日期相同
+        function checkDate() {
+        const year = document.getElementById('yearSelect').value;
+        const month = document.getElementById('monthSelect').value;
+        const day = document.getElementById('daySelect').value;
+
+        // 获取当前系统时间的年月日
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+        const currentDay = String(today.getDate()).padStart(2, '0');
+
+        // 比较用户选择的日期和当前日期
+        if (year === currentYear.toString() && month === currentMonth && day === currentDay) {
+            document.getElementById('result').innerText = '选择的日期与当前日期相同！';
+            document.getElementById('result').style.color = 'green';
+            var ans=1
+            score=100
+            dataToUpdate = { "orientation": score};
+            updateResult(id, dataToUpdate)
+        } else {
+            document.getElementById('result').innerText = '选择的日期与当前日期不同！';
+            document.getElementById('result').style.color = 'red';
+            var ans=0
+            score=0
+            dataToUpdate = { "orientation": score};
+            updateResult(id, dataToUpdate)
+        }
+        }
+
+
+        // 初始化下拉菜单
+        initializeSelectors();
+        </script>
+        
+</html>
