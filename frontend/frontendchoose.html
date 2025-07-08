@@ -1,39 +1,29 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>游戏选择</title>
     <style>
         :root {
-            /* 颜色 */
             --primary-color: #000;
-            --accent-color-blue: #3b82f6;
-            --accent-color-green: #10b981;
-            --accent-color-orange: #f97316;
-            --accent-color-purple: #8b5cf6;
-            --accent-color-pink: #ec4899;
-            --card-bg: #ffffff;
-            --score-color: #64748b;
-
-            /* 字体与尺寸 */
-            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-                          Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            --header-font-size: 2.5rem;
-            --game-name-font-size: 1.5rem;
-            --score-font-size: 1rem;
-            --button-font-size: 1.1rem;
-
-            /* 响应式断点 */
-            --desktop-min-width: 768px;
-            --mobile-max-width: 767px;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-orange: #f97316;
+            --accent-purple: #8b5cf6;
+            --accent-yellow: #eab308;
+            --accent-pink: #ec4899;
+            --accent-indigo: #6366f1;
+            --card-bg: #f8fafc;
+            --transition-speed: 0.3s;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: var(--font-family);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, 
+                        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
 
         body {
@@ -48,208 +38,170 @@
         header {
             text-align: center;
             margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease-out;
         }
 
         h1 {
-            font-size: var(--header-font-size);
+            font-size: 2.5rem;
             font-weight: 700;
             letter-spacing: 2px;
-            background: linear-gradient(45deg, var(--accent-color-blue), var(--accent-color-purple), var(--accent-color-pink));
-            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
         }
 
         .grid-container {
             display: grid;
-            gap: 2.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
             flex: 1;
             align-items: start;
         }
 
-        @media (min-width: var(--desktop-min-width)) {
-            .grid-container {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        @media (max-width: var(--mobile-max-width)) {
-            .grid-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
         .game-card {
             background: var(--card-bg);
-            border-radius: 1.5rem;
-            padding: 2rem;
+            border-radius: 1rem;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-            position: relative;
-        }
-
-        .game-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .game-name {
-            font-size: var(--game-name-font-size);
-            font-weight: 700;
-            margin-bottom: 1.2rem;
-        }
-
-        .score {
-            font-size: var(--score-font-size);
-            color: var(--score-color);
-            margin-bottom: 2rem;
-        }
-
-        .enter-btn {
-            background: linear-gradient(45deg, var(--accent-gradient));
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            font-size: var(--button-font-size);
-            font-weight: 600;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform var(--transition-speed) ease-in-out, 
+                        box-shadow var(--transition-speed) ease-in-out;
             position: relative;
             overflow: hidden;
         }
 
-        .enter-btn::after {
+        .game-card::before {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 11%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-gradient));
         }
 
-        .enter-btn:active::after {
-            animation: ripple 0.6s ease-out;
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
-        @keyframes ripple {
-            to {
-                transform: translate(-50%, -50%) scale(4);
-                opacity: 0;
+        .game-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .score {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .enter-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .enter-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .enter-btn:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 颜色变体 */
+        .card-1 { --accent-gradient: #3b82f6, #6366f1; }
+        .card-2 { --accent-gradient: #8b5cf6, #ec4899; }
+        .card-3 { --accent-gradient: #f97316, #eab308; }
+        .card-4 { --accent-gradient: #10b981, #34d399; }
+        .card-5 { --accent-gradient: #0ea5e9, #60a5fa; }
+        .card-6 { --accent-gradient: #ef4444, #f87171; }
+        .card-7 { --accent-gradient: #7c3aed, #a78bfa; }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .game-card {
+                padding: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1 id="page-title"></h1>
+        <h1>游戏选择</h1>
     </header>
-
-    <div class="grid-container" id="game-grid">
-        <!-- 卡片由 JS 动态插入 -->
+    
+    <div class="grid-container">
+        <!-- 游戏卡片示例 -->
+        <div class="game-card card-1">
+            <div class="game-name">游戏1</div>
+            <div class="score">已完成：95分</div>
+            <button class="enter-btn" onclick="navigateToGame()">进入</button>
+        </div>
+        
+        <div class="game-card card-2">
+            <div class="game-name">游戏2</div>
+            <div class="score">已完成：88分</div>
+            <button class="enter-btn" onclick="navigateToGame()">进入</button>
+        </div>
+        
+        <div class="game-card card-3">
+            <div class="game-name">游戏3</div>
+            <div class="score">未完成</div>
+            <button class="enter-btn" onclick="navigateToGame()">进入</button>
+        </div>
+        
+        <div class="game-card card-4">
+            <div class="game-name">游戏4</div>
+            <div class="score">已完成：92分</div>
+            <button class="enter-btn" onclick="navigateToGame()">进入</button>
+        </div>
+        
+        <div class="game-card card-5">
+            <div class="game-name">游戏5</div>
+            <div class="score">未完成</div>
+            <button class="enter-btn" onclick="navigateToGame()">进入</button>
+        </div>
+        
+        <div class="game-card card-6">
+            <div class="game-name">游戏6</div>
+            <div class="score">已完成：85分</div>
+            <button class="enter-btn" onclick="navigateToGame()">进入</button>
+        </div>
+        
+        <div class="game-card card-7">
+            <div class="game-name">游戏7</div>
+            <div class="score">未完成</div>
+            <button class="enter-btn" onclick="navigateToGame()">进入</button>
+        </div>
     </div>
 
     <script>
-        // 配置数据
-        const config = {
-            pageTitle: "游戏选择",
-            buttonText: "进入",
-            games: [
-                {
-                    id: 0,
-                    name: "完整测试",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 1,
-                    name: "日期游戏",
-                    score: null,
-                    status:"未完成"
-                },
-                {
-                    id: 2,
-                    name: "匹配游戏",
-                    score: null,
-                    status:"未完成"
-                },
-                {
-                    id: 3,
-                    name: "记忆棋盘",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 4,
-                    name: "连连看",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 5,
-                    name: "语言游戏",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 6,
-                    name: "分类游戏",
-                    score: null,
-                    status: "未完成"
-                },
-                {
-                    id: 7,
-                    name: "延迟回忆",
-                    score: null,
-                    status: "未完成"
-                }
-            ],
-            colors: [
-                "var(--accent-color-blue), var(--accent-color-purple)",
-                "var(--accent-color-purple), var(--accent-color-pink)",
-                "var(--accent-color-orange)",
-                "var(--accent-color-green), #34d399",
-                "#0ea5e9, #60a5fa",
-                "#ef4444, #f87171",
-                "#7c3aed, #a78bfa",
-                " var(--accent-color-blue)"
-            ]
-        };
-
-        // 设置页面标题
-        document.getElementById('page-title').textContent = config.pageTitle;
-
-        // 动态生成卡片
-        const gameGrid = document.getElementById("game-grid");
-
-        config.games.forEach((game, index) => {
-            const card = document.createElement("div");
-            card.className = `game-card card-${index + 1}`;
-            card.style.setProperty('--accent-gradient', config.colors[index % config.colors.length]);
-
-            const scoreText = game.score ? `已完成：${game.score}` : "未完成";
-
-            card.innerHTML = `
-                <div class="game-name">${game.name}</div>
-                <div class="score">${scoreText}</div>
-                <button class="enter-btn" aria-label="进入 ${game.name}" onclick="navigateToGame(${game.id})">${config.buttonText}</button>
-            `;
-
-            gameGrid.appendChild(card);
-        });
-
-        // 跳转函数
-        function navigateToGame(gameId) {
-            // 示例跳转路径
-            window.location.href = `game${gameId}.html`;
+        function navigateToGame() {
+            // 这里可以替换为实际的页面跳转逻辑
+            window.location.href = "#game";
         }
     </script>
 </body>
