@@ -4,7 +4,14 @@ import json
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt # 用于允许外部POST请求
 from .models import AssessmentResult
+from django.shortcuts import render
 
+
+def index_view(request):
+    """
+    This view serves the main index.html file.
+    """
+    return render(request, 'index.html')
 @csrf_exempt # 注意：这在开发中很方便，但在生产环境中需要更安全的认证方式
 def result_list_create(request):
     """
