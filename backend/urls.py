@@ -23,6 +23,13 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include('api.urls')),
     path('', api.views.index_view, name='index'),
-    path('frontendchoose/',api.views.frontendchoose_view,name='frontendchoose')
-
+    path('frontendchoose/',api.views.frontendchoose_view,name='frontendchoose'),
+    path('game0/',api.views.game1_view,name='gmae0'),
+    path('game1/',api.views.game1_view,name='gmae1'),
+    path('game2/',api.views.game2_view,name='game2'),
+    path('game3/',api.views.game3_view,name='game3'),
+    path('game4/',api.views.game4_view,name='game4'),
+    path('game5/',api.views.game5_view,name='game5'),
+    path('game6/',api.views.game6_view,name='game6'),
+    path('game7/',api.views.game7_view,name='game7'),
 ]

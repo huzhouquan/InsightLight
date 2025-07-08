@@ -15,6 +15,31 @@ def index_view(request):
 def frontendchoose_view(request):
 
     return render(request, 'frontendchoose.html')
+
+def game0_view(request):
+
+    return render(request, 'game0.html')
+def game1_view(request):
+
+    return render(request, 'game1.html')
+def game2_view(request):
+
+    return render(request, 'game2.html')
+def game3_view(request):
+
+    return render(request, 'game3.html')
+def game4_view(request):
+
+    return render(request, 'game4.html')
+def game5_view(request):
+
+    return render(request, 'game5.html')
+def game6_view(request):
+
+    return render(request, 'game6.html')
+def game7_view(request):
+
+    return render(request, 'game7.html')
 @csrf_exempt # 注意：这在开发中很方便，但在生产环境中需要更安全的认证方式
 def result_list_create(request):
     """
