@@ -1,39 +1,131 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>日期判断</title>
-        
-    </head>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>日期判断</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --background-color: #f0f4f8;
+            --text-color: #333;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --border-radius: 8px;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    <body>
-        <h1>日期判断</h1>
-        <p>请输入今天的日期</p>
-        <select id="yearSelect" onload="initializeSelectors()">
-            <option></option>
-        </select>
-        <i>年</i>
-        <select id="monthSelect">
-            
-        </select>
-        <i>月</i>
-        <select id="daySelect" >
-            <option></option>
-        </select>
-        <i>日</i>
-        <button onclick="checkDate()">确认日期</button>
-        <p id="result"></p>
-    </body>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .date-selectors {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        select {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #ccc;
+            border-radius: var(--border-radius);
+            background-color: #fff;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        button {
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        #result {
+            margin-top: 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .date-selectors {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>日期判断</h1>
+    <p>请选择今天的日期：</p>
+
+    <div class="date-selectors">
+        <select id="yearSelect"></select>
+        <label>年</label>
+
+        <select id="monthSelect"></select>
+        <label>月</label>
+
+        <select id="daySelect"></select>
+        <label>日</label>
+    </div>
+
+    <button onclick="checkDate()">确认日期</button>
+    <p id="result"></p>
 
     <script>
-            // 初始化年份、月份和日期的下拉菜单
         function initializeSelectors() {
             const yearSelect = document.getElementById('yearSelect');
             const monthSelect = document.getElementById('monthSelect');
             const daySelect = document.getElementById('daySelect');
 
-            // 填充年份选项（假设从当前年份开始，往前100年）
             const currentYear = new Date().getFullYear();
+
+            // 生成年份选项
             for (let year = currentYear; year >= currentYear - 100; year--) {
                 const option = document.createElement('option');
                 option.value = year;
@@ -41,7 +133,7 @@
                 yearSelect.appendChild(option);
             }
 
-            // 填充月份选项
+            // 生成月份选项
             for (let month = 1; month <= 12; month++) {
                 const option = document.createElement('option');
                 option.value = String(month).padStart(2, '0');
@@ -49,51 +141,46 @@
                 monthSelect.appendChild(option);
             }
 
-            // 填充日期选项（根据选择的年月动态生成）
             function updateDays() {
                 const year = yearSelect.value;
                 const month = monthSelect.value;
-                const daysInMonth = new Date(year, month, 0).getDate(); // 获取该月的天数
-                daySelect.innerHTML = ''; // 清空当前的日期选项
+                const daysInMonth = new Date(year, month, 0).getDate();
+                daySelect.innerHTML = '';
                 for (let day = 1; day <= daysInMonth; day++) {
-                const option = document.createElement('option');
-                option.value = String(day).padStart(2, '0');
-                option.text = day;
-                daySelect.appendChild(option);
+                    const option = document.createElement('option');
+                    option.value = String(day).padStart(2, '0');
+                    option.text = day;
+                    daySelect.appendChild(option);
                 }
             }
 
-            // 初始化日期选项
             updateDays();
-
-            // 监听年份和月份的变化，动态更新日期选项
             yearSelect.addEventListener('change', updateDays);
             monthSelect.addEventListener('change', updateDays);
         }
 
-        // 检查日期是否与当前日期相同
         function checkDate() {
-        const year = document.getElementById('yearSelect').value;
-        const month = document.getElementById('monthSelect').value;
-        const day = document.getElementById('daySelect').value;
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            const day = document.getElementById('daySelect').value;
 
-        // 获取当前系统时间的年月日
-        const today = new Date();
-        const currentYear = today.getFullYear();
-        const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
-        const currentDay = String(today.getDate()).padStart(2, '0');
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+            const currentDay = String(today.getDate()).padStart(2, '0');
 
-        // 比较用户选择的日期和当前日期
-        if (year === currentYear.toString() && month === currentMonth && day === currentDay) {
-            document.getElementById('result').innerText = '选择的日期与当前日期相同！';
-            document.getElementById('result').style.color = 'green';
-        } else {
-            document.getElementById('result').innerText = '选择的日期与当前日期不同！';
-            document.getElementById('result').style.color = 'red';
+            const result = document.getElementById('result');
+
+            if (year === currentYear.toString() && month === currentMonth && day === currentDay) {
+                result.textContent = '选择的日期与当前日期相同！';
+                result.style.color = 'var(--success-color)';
+            } else {
+                result.textContent = '选择的日期与当前日期不同！';
+                result.style.color = 'var(--error-color)';
+            }
         }
-        }
 
-        // 初始化下拉菜单
         initializeSelectors();
-        </script>
+    </script>
+</body>
 </html>
