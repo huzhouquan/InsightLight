@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>记忆棋盘游戏</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin: auto;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #3b82f6;
+      color: white;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+
+    .card.flipped {
+      background-color: #10b981;
+    }
+
+    .card.matched {
+      background-color: #f97316;
+      cursor: default;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>记忆棋盘游戏</h1>
+  <div class="board" id="board"></div>
+  <div id="message"></div>
+
+  <script>
+    const board = document.getElementById('board');
+    const message = document.getElementById('message');
+    const totalPairs = 8;
+    let cards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+
+    // 生成卡片数据（数字 1~8，各两张）
+    function generateCards() {
+      const values = [];
+      for (let i = 1; i <= totalPairs; i++) {
+        values.push(i, i); // 每个数字两张
+      }
+      return values.sort(() => Math.random() - 0.5); // 打乱顺序
+    }
+
+    // 创建卡片元素
+    function createBoard() {
+      const cardValues = generateCards();
+      cardValues.forEach((value, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.value = value;
+        card.dataset.index = index;
+        card.addEventListener('click', flipCard);
+        board.appendChild(card);
+        cards.push(card);
+      });
+    }
+
+    // 翻转卡片
+    function flipCard() {
+      const card = this;
+      if (flippedCards.length === 2 || card.classList.contains('flipped') || card.classList.contains('matched')) {
+        return;
+      }
+
+      card.classList.add('flipped');
+      card.textContent = card.dataset.value;
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        checkMatch();
+      }
+    }
+
+    // 检查是否匹配
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+      if (card1.dataset.value === card2.dataset.value) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        matchedPairs++;
+        if (matchedPairs === totalPairs) {
+          message.textContent = '🎉 恭喜你，全部匹配完成！';
+        }
+        flippedCards = [];
+      } else {
+        setTimeout(() => {
+          card1.classList.remove('flipped');
+          card2.classList.remove('flipped');
+          card1.textContent = '';
+          card2.textContent = '';
+          flippedCards = [];
+        }, 1000);
+      }
+    }
+
+    // 初始化游戏
+    createBoard();
+  </script>
+</body>
+</html>
