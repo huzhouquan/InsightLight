@@ -4,14 +4,61 @@
     <head>
         <meta charset="UTF-8">
         <title>日期判断</title>
-        
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            text-align: center;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+        }
+
+        .date-selectors {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 8px 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+
     </head>
 
     <body>
         <h1>日期判断</h1>
         <p>请输入今天的日期</p>
         <select id="yearSelect" onload="initializeSelectors()">
-            <option></option>
         </select>
         <i>年</i>
         <select id="monthSelect">
