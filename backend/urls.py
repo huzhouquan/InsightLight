@@ -17,10 +17,12 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from api.views import index_view # 导入我们新创建的视图
+import api.views # 导入我们新创建的视图
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include('api.urls')),
-    path('', index_view, name='index'),
+    path('', api.views.index_view, name='index'),
+    path('frontendchoose/',api.views.frontendchoose_view,name='frontendchoose')
+
 ]

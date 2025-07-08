@@ -12,6 +12,9 @@ def index_view(request):
     This view serves the main index.html file.
     """
     return render(request, 'index.html')
+def frontendchoose_view(request):
+
+    return render(request, 'frontendchoose.html')
 @csrf_exempt # 注意：这在开发中很方便，但在生产环境中需要更安全的认证方式
 def result_list_create(request):
     """
