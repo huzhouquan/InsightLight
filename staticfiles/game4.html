@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>位置记忆游戏</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #f0f4f8;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 80px);
+      gap: 10px;
+      justify-content: center;
+      margin: auto;
+    }
+
+    .cell {
+      width: 80px;
+      height: 80px;
+      background-color: #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .cell.flashed {
+      background-color: #f97316;
+    }
+
+    .cell.clicked {
+      background-color: #3b82f6;
+    }
+
+    .cell.correct {
+      background-color: #10b981;
+    }
+
+    .cell.wrong {
+      background-color: #ef4444;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <h1>位置记忆游戏</h1>
+  <div class="grid" id="grid"></div>
+  <div id="message"></div>
+  <button onclick="startGame()">开始游戏</button>
+
+  <script>
+    const gridSize = 4;
+    const totalCells = gridSize * gridSize;
+    const flashCount = 4; // 闪烁的格子数量
+    let flashedCells = [];
+    let userClicks = [];
+    let gameStarted = false;
+
+    const grid = document.getElementById('grid');
+    const message = document.getElementById('message');
+
+    // 创建网格
+    function createGrid() {
+      grid.innerHTML = '';
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', () => handleCellClick(i));
+        grid.appendChild(cell);
+      }
+    }
+
+    // 随机选择闪烁的格子
+    function getRandomFlashCells() {
+      const cells = [];
+      while (cells.length < flashCount) {
+        const rand = Math.floor(Math.random() * totalCells);
+        if (!cells.includes(rand)) {
+          cells.push(rand);
+        }
+      }
+      return cells;
+    }
+
+    // 闪烁格子
+    function flashCells() {
+      const cells = document.querySelectorAll('.cell');
+      flashedCells = getRandomFlashCells();
+
+      flashedCells.forEach(index => {
+        cells[index].classList.add('flashed');
+      });
+
+      setTimeout(() => {
+        cells.forEach(cell => cell.classList.remove('flashed'));
+        message.textContent = '请依次点击你记住的位置';
+        gameStarted = true;
+        userClicks = [];
+      }, 1000); // 闪烁1秒
+    }
+
+    // 处理点击事件
+    function handleCellClick(index) {
+      if (!gameStarted) return;
+
+      const cell = document.querySelector(`.cell[data-index="${index}"]`);
+      if (cell.classList.contains('clicked')) return;
+
+      cell.classList.add('clicked');
+      userClicks.push(index);
+
+      if (userClicks.length === flashCount) {
+        checkResult();
+      }
+    }
+
+    // 检查结果
+    function checkResult() {
+      const cells = document.querySelectorAll('.cell');
+      let correct = 0;
+
+      userClicks.forEach((click, i) => {
+        const cell = cells[click];
+        if (flashedCells.includes(click)) {
+          cell.classList.add('correct');
+          correct++;
+        } else {
+          cell.classList.add('wrong');
+        }
+      });
+
+      if (correct === flashCount) {
+        message.textContent = '🎉 全部正确！你记忆力真棒！';
+        message.style.color = '#10b981';
+      } else {
+        message.textContent = `❌ 错了 ${flashCount - correct} 个位置，再试一次吧！`;
+        message.style.color = '#ef4444';
+      }
+
+      gameStarted = false;
+    }
+
+    // 开始游戏
+    function startGame() {
+      createGrid();
+      message.textContent = '';
+      gameStarted = false;
+      flashCells();
+    }
+
+    // 初始化
+    startGame();
+  </script>
+</body>
+</html>
