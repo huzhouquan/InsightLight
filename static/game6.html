@@ -101,7 +101,41 @@
 
   <div class="result" id="result"></div>
 
-  <script>
+  <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+    
+    <script>
+    // ✅ 修正2: 将所有JS代码都包裹在 $(document).ready() 中
+    $(document).ready(function() {
+
+        // --- 状态变量 ---
+        const currentResultId = $('body').data('result-id');
+        console.log("成功从HTML中读取到ID:", currentResultId);
+
+        // --- 函数定义 ---
+
+        function updateResult(resultId, dataToUpdate) {
+            // 检查ID是否存在，防止发送错误的请求
+            if (!resultId) {
+                console.error("错误: resultId 为空，无法发送更新请求！");
+                alert("页面初始化错误，请返回重试。");
+                return;
+            }
+            $.ajax({
+                url: `/api/results/${resultId}/`, // 使用相对路径更佳
+                type: 'PATCH',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToUpdate),
+                success: function(response) {
+                    console.log('更新成功!', response);
+                    alert('分数已成功提交！');
+                },
+                error: function(error) {
+                    console.error('更新失败:', error);
+                    alert('提交失败，请查看控制台获取详情。');
+                }
+            });
+        }
+
     // 题目数据：图片路径、正确选项和其他干扰项
     const questions = [
       {
@@ -231,33 +265,14 @@
 
       const resultDiv = document.getElementById('result');
       resultDiv.textContent = `你答对了 ${score} 道题，共 ${total} 道题。`;
-      updateResult(id, {"naming": (score/total)});
+      const dataToUpdate = {"naming": (score/total)}
+      updateResult(id, dataToUpdate);
     }
 
     
 
 
-    //函数
-    
-    function updateResult(resultId, dataToUpdate) {
-    // 示例:
-    // const resultId = 'a1b2c3d4-e5f6-...';
-    // const dataToUpdate = { memory: 99, attention: 90 };
-
-    $.ajax({
-        url: `http://127.0.0.1:8000/api/results/${resultId}/`, // URL中包含ID
-        type: 'PATCH', // 使用 PATCH 方法进行部分更新
-        contentType: 'application/json',
-        data: JSON.stringify(dataToUpdate),
-        success: function(response) {
-            console.log('更新成功!', response);
-            alert('结果更新成功！');
-        },
-        error: function(error) {
-            console.error('更新失败:', error);
-        }
-    });
-}
+});
   </script>
 </body>
 </html>
