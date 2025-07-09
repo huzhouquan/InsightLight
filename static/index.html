@@ -1,4 +1,5 @@
-{% load static %} <!DOCTYPE html>
+<!DOCTYPE html>
+{% load static %} 
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -90,10 +91,16 @@
     </style>
 </head>
 <body>
-    <h1>赢朕乐</h1>
-    <button class="start-btn" onclick="navigateToNext()">开始</button>
-
+    <h1>乐</h1>
+    <a> 
+        <button class="start-btn" onclick="navigateToNext()">开始测试</button>
+        <button class="start-btn" onclick="navigateTotrain()">开始训练</button>
+    </a>
+   
     <script>
+        function navigateTotrain(){
+            window.location.href = "game1/"
+        }
 
         function navigateToNext() {
 
