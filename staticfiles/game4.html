@@ -1,186 +1,254 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>位置记忆游戏</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      background: #f0f4f8;
-      padding: 20px;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>位置记忆游戏</title>
+    <style>
+        /* 美化后的CSS样式 */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            background: #f0f4f8;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
-    }
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 80px);
-      gap: 10px;
-      justify-content: center;
-      margin: auto;
-    }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            gap: 10px;
+            justify-content: center;
+            margin: 20px auto;
+        }
 
-    .cell {
-      width: 80px;
-      height: 80px;
-      background-color: #ccc;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
+        .cell {
+            width: 80px;
+            height: 80px;
+            background-color: #d1d5db; /* 默认灰色 */
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease; /* 平滑过渡效果 */
+        }
+        
+        .cell:hover {
+            transform: scale(1.05);
+        }
 
-    .cell.flashed {
-      background-color: #f97316;
-    }
+        .cell.flashed {
+            background-color: #f97316; /* 闪烁橙色 */
+            transform: scale(1.1);
+        }
 
-    .cell.clicked {
-      background-color: #3b82f6;
-    }
+        .cell.clicked {
+            background-color: #3b82f6; /* 点击蓝色 */
+        }
 
-    .cell.correct {
-      background-color: #10b981;
-    }
+        .cell.correct {
+            background-color: #10b981; /* 正确绿色 */
+        }
 
-    .cell.wrong {
-      background-color: #ef4444;
-    }
+        .cell.wrong {
+            background-color: #ef4444; /* 错误红色 */
+        }
 
-    #message {
-      margin-top: 20px;
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
+        #message {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 2em; /* 保持高度防止跳动 */
+        }
 
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1rem;
-      background-color: #3b82f6;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+        button {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
 
-    button:hover {
-      background-color: #2563eb;
-    }
-  </style>
+        button:hover {
+            background-color: #2563eb;
+        }
+        
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
-<body>
-  <h1>位置记忆游戏</h1>
-  <div class="grid" id="grid"></div>
-  <div id="message"></div>
-  <button onclick="startGame()">开始游戏</button>
 
-  <script>
-    const gridSize = 4;
-    const totalCells = gridSize * gridSize;
-    const flashCount = 4; // 闪烁的格子数量
-    let flashedCells = [];
-    let userClicks = [];
-    let gameStarted = false;
+<body data-result-id="{{ result_id }}">
+    <h1>位置记忆游戏</h1>
+    <div class="grid" id="grid"></div>
+    <div id="message">请点击“开始游戏”</div>
+    
+    <button id="startBtn">开始游戏</button>
 
-    const grid = document.getElementById('grid');
-    const message = document.getElementById('message');
+    <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+    
+    <script>
+    // ✅ 4. 将所有JS代码都包裹在 $(document).ready() 中
+    $(document).ready(function() {
 
-    // 创建网格
-    function createGrid() {
-      grid.innerHTML = '';
-      for (let i = 0; i < totalCells; i++) {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.dataset.index = i;
-        cell.addEventListener('click', () => handleCellClick(i));
-        grid.appendChild(cell);
-      }
-    }
+        // --- 游戏状态和配置 ---
+        const gridSize = 4;
+        const totalCells = gridSize * gridSize;
+        const flashCount = 4;
+        let gameState = {}; // 使用一个对象来统一管理游戏状态
 
-    // 随机选择闪烁的格子
-    function getRandomFlashCells() {
-      const cells = [];
-      while (cells.length < flashCount) {
-        const rand = Math.floor(Math.random() * totalCells);
-        if (!cells.includes(rand)) {
-          cells.push(rand);
+        // --- DOM 元素缓存 ---
+        const $grid = $('#grid');
+        const $message = $('#message');
+        const $startBtn = $('#startBtn');
+
+        // --- 核心函数 ---
+
+        // 初始化/重置游戏
+        function initGame() {
+            gameState = {
+                flashedCells: [],
+                userClicks: [],
+                isGameActive: false,
+                canPlayerClick: false
+            };
+            
+            $grid.html(''); // 使用jQuery清空网格
+            for (let i = 0; i < totalCells; i++) {
+                const $cell = $('<div></div>').addClass('cell').attr('data-index', i);
+                $grid.append($cell);
+            }
+            $message.text('请点击“开始游戏”').css('color', '#333');
+            $startBtn.prop('disabled', false).text('开始游戏');
         }
-      }
-      return cells;
-    }
 
-    // 闪烁格子
-    function flashCells() {
-      const cells = document.querySelectorAll('.cell');
-      flashedCells = getRandomFlashCells();
+        // 开始游戏流程
+        function startGame() {
+            initGame(); // 重置游戏状态
+            $startBtn.prop('disabled', true);
+            $message.text('请记住闪烁的位置...');
+            
+            while (gameState.flashedCells.length < flashCount) {
+                const rand = Math.floor(Math.random() * totalCells);
+                if (!gameState.flashedCells.includes(rand)) {
+                    gameState.flashedCells.push(rand);
+                }
+                console.log(gameState.flashedCells);
+            }
+            
+            gameState.flashedCells.forEach(index => {
+                $(`.cell[data-index="${index}"]`).addClass('flashed');
+            });
 
-      flashedCells.forEach(index => {
-        cells[index].classList.add('flashed');
-      });
-
-      setTimeout(() => {
-        cells.forEach(cell => cell.classList.remove('flashed'));
-        message.textContent = '请依次点击你记住的位置';
-        gameStarted = true;
-        userClicks = [];
-      }, 1000); // 闪烁1秒
-    }
-
-    // 处理点击事件
-    function handleCellClick(index) {
-      if (!gameStarted) return;
-
-      const cell = document.querySelector(`.cell[data-index="${index}"]`);
-      if (cell.classList.contains('clicked')) return;
-
-      cell.classList.add('clicked');
-      userClicks.push(index);
-
-      if (userClicks.length === flashCount) {
-        checkResult();
-      }
-    }
-
-    // 检查结果
-    function checkResult() {
-      const cells = document.querySelectorAll('.cell');
-      let correct = 0;
-
-      userClicks.forEach((click, i) => {
-        const cell = cells[click];
-        if (flashedCells.includes(click)) {
-          cell.classList.add('correct');
-          correct++;
-        } else {
-          cell.classList.add('wrong');
+            setTimeout(() => {
+                $('.cell').removeClass('flashed');
+                $message.text('请依次点击你记住的位置');
+                gameState.canPlayerClick = true; // 现在允许玩家点击
+            }, 1500); // 闪烁1.5秒
         }
-      });
 
-      if (correct === flashCount) {
-        message.textContent = '🎉 全部正确！你记忆力真棒！';
-        message.style.color = '#10b981';
-      } else {
-        message.textContent = `❌ 错了 ${flashCount - correct} 个位置，再试一次吧！`;
-        message.style.color = '#ef4444';
-      }
+        // 处理格子点击事件
+        function handleCellClick() {
+            if (!gameState.canPlayerClick) return;
 
-      gameStarted = false;
-    }
+            const $cell = $(this);
+            if ($cell.hasClass('clicked') || $cell.hasClass('correct') || $cell.hasClass('wrong')) return;
 
-    // 开始游戏
-    function startGame() {
-      createGrid();
-      message.textContent = '';
-      gameStarted = false;
-      flashCells();
-    }
+            $cell.addClass('clicked');
+            gameState.userClicks.push($cell.data('index'));
 
-    // 初始化
-    startGame();
-  </script>
+            if (gameState.userClicks.length === flashCount) {
+                gameState.canPlayerClick = false; // 停止玩家点击
+                checkResult();
+            }
+        }
+
+        // 检查结果
+        function checkResult() {
+            let correctCount = 0;
+            const $cells = $('.cell');
+
+            gameState.userClicks.forEach(clickedIndex => {
+                const $cell = $cells.filter(`[data-index="${clickedIndex}"]`);
+                if (gameState.flashedCells.includes(clickedIndex)) {
+                    $cell.removeClass('clicked').addClass('correct');
+                    correctCount++;
+                } else {
+                    $cell.removeClass('clicked').addClass('wrong');
+                }
+            });
+            
+            // 显示所有正确答案
+            gameState.flashedCells.forEach(index => {
+                $(`.cell[data-index="${index}"]`).addClass('correct');
+            });
+
+
+            const finalScore = calculateScore(correctCount);
+            if (correctCount === flashCount) {
+                $message.text('🎉 全部正确！记忆力真棒！').css('color', '#10b981');
+            } else {
+                $message.text(`答对了 ${correctCount} 个，总共 ${flashCount} 个。`).css('color', '#ef4444');
+            }
+
+            const currentResultId = $('body').data('result-id');
+            // ✅ 6. 将分数提交到 "memory" 字段
+            updateResult(currentResultId, { "memory": finalScore });
+            
+            $startBtn.prop('disabled', false).text('再玩一次');
+        }
+
+        // ✅ 5. 新增：根据规则计算分数
+        function calculateScore(correctCount) {
+            // 0对=50分, 4对=100分。总分差是50，分4步走完，每步12.5分。
+            const score = 50 + (correctCount * 12.5);
+            return Math.round(score);
+        }
+
+        // AJAX 更新函数
+        function updateResult(resultId, dataToUpdate) {
+            if (!resultId) {
+                console.error("ID不存在，无法提交分数!");
+                alert("页面初始化错误，请刷新重试。");
+                return;
+            }
+            $.ajax({
+                url: `/api/results/${resultId}/`,
+                type: 'PATCH',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToUpdate),
+                success: (response) => {
+                    console.log('更新成功!', response);
+                    alert(`分数 ${dataToUpdate.memory} 已成功提交！`);
+                },
+                error: (error) => {
+                    console.error('更新失败:', error);
+                    alert('提交失败，请查看控制台获取详情。');
+                }
+            });
+        }
+
+        // --- 事件绑定 ---
+        $startBtn.on('click', startGame);
+        // 使用事件委托来绑定点击，效率更高
+        $grid.on('click', '.cell', handleCellClick); 
+
+        // --- 页面初始化 ---
+        initGame(); // 首次加载时，创建好网格
+    });
+    </script>
 </body>
 </html>

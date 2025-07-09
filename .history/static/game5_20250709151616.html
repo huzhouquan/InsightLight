@@ -140,7 +140,7 @@ $(document).ready(function() {
         $message.text(`🎉 完成！用时: ${elapsedSeconds.toFixed(2)}秒，得分: ${finalScore}`).css('color', 'green');
         
         const currentResultId = $('body').data('result-id');
-        updateResult(currentResultId, { "delayed_recall": finalScore });
+        updateResult(currentResultId, { "memory": finalScore });
         
         $startBtn.text('再玩一次').show();
     }
@@ -172,7 +172,7 @@ $(document).ready(function() {
             data: JSON.stringify(dataToUpdate),
             success: (response) => {
                 console.log('更新成功!', response);
-                alert(`分数已成功提交！`);
+                alert(`分数 ${dataToUpdate.memory} 已成功提交！`);
             },
             error: (error) => console.error('更新失败:', error)
         });

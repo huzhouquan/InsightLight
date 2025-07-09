@@ -1,0 +1,35 @@
+function startGame() {
+  gameState.userClicks = [];
+  gameState.isGameActive = false;
+  gameState.canPlayerClick = false;
+  $grid.html('');
+  for (let i = 0; i < totalCells; i++) {
+    const $cell = $('<div></div>').addClass('cell').data('index', i);
+    $grid.append($cell);
+  }
+  $startBtn.prop('disabled', true);
+  $message.text('请记住闪烁的位置...');
+
+  // 生成新的闪烁序列
+  gameState.flashedCells = [];
+  while (gameState.flashedCells.length < flashCount) {
+    const rand = Math.floor(Math.random() * totalCells);
+    if (!gameState.flashedCells.includes(rand)) {
+      gameState.flashedCells.push(rand);
+    }
+  }
+
+  // 关键：先渲染，再闪烁
+  setTimeout(() => {
+    gameState.flashedCells.forEach(index => {
+      $(`.cell[data-index="${index}"]`).addClass('flashed');
+    });
+
+    setTimeout(() => {
+      $('.cell').removeClass('flashed');
+      $message.text('请依次点击你记住的位置');
+      gameState.canPlayerClick = true;
+    }, 1500); // 闪烁1.5秒
+
+  }, 100); // 延迟100ms再闪烁
+}

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-{% load static %}
 <html lang="zh-CN">
 <head>
+    {% load static %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>位置记忆游戏</title>
@@ -128,7 +128,7 @@
             
             $grid.html(''); // 使用jQuery清空网格
             for (let i = 0; i < totalCells; i++) {
-                const $cell = $('<div></div>').addClass('cell').attr('data-index', i);
+                const $cell = $('<div></div>').addClass('cell').data('index', i);
                 $grid.append($cell);
             }
             $message.text('请点击“开始游戏”').css('color', '#333');
@@ -137,22 +137,31 @@
 
         // 开始游戏流程
         function startGame() {
-            initGame(); // 重置游戏状态
+            // 只重置网格和用户点击，不重置flashedCells
+            gameState.userClicks = [];
+            gameState.isGameActive = false;
+            gameState.canPlayerClick = false;
+            $grid.html('');
+            for (let i = 0; i < totalCells; i++) {
+                const $cell = $('<div></div>').addClass('cell').data('index', i);
+                $grid.append($cell);
+            }
             $startBtn.prop('disabled', true);
             $message.text('请记住闪烁的位置...');
-            
+        
+            // 生成新的闪烁序列
+            gameState.flashedCells = [];
             while (gameState.flashedCells.length < flashCount) {
                 const rand = Math.floor(Math.random() * totalCells);
                 if (!gameState.flashedCells.includes(rand)) {
                     gameState.flashedCells.push(rand);
                 }
-                console.log(gameState.flashedCells);
             }
-            
+        
             gameState.flashedCells.forEach(index => {
                 $(`.cell[data-index="${index}"]`).addClass('flashed');
             });
-
+        
             setTimeout(() => {
                 $('.cell').removeClass('flashed');
                 $message.text('请依次点击你记住的位置');

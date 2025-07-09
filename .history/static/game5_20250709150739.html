@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>记忆棋盘游戏</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-align: center;
+            background: #f0f4f8;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+        
+        .instructions {
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+
+        .board {
+            display: grid;
+            /* ✅ 难度调整：从4列改为3列 */
+            grid-template-columns: repeat(3, 100px);
+            gap: 15px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #3b82f6;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.4s, background-color 0.3s;
+            transform-style: preserve-3d;
+            user-select: none;
+        }
+        
+        .card .card-face {
+            backface-visibility: hidden; /* 隐藏背面 */
+            position: absolute;
+        }
+        
+        .card .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+            background-color: #f3f4f6;
+        }
+
+        .card.matched {
+            background-color: #10b981; /* 匹配成功用绿色 */
+            cursor: default;
+            transform: scale(1.05);
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 1.5em; /* 保持高度防止跳动 */
+        }
+        
+        #startBtn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body data-result-id="{{ result_id }}">
+
+<div class="container">
+    <h1>记忆棋盘</h1>
+    <p class="instructions">点击“开始游戏”，记住所有卡片的内容，然后找出所有匹配的配对。</p>
+    <div class="board" id="board"></div>
+    <div id="message"></div>
+    <button id="startBtn">开始游戏</button>
+</div>
+
+<script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    
+    // --- 1. 游戏状态和配置 ---
+    const gridRows = 2;
+    const gridCols = 3;
+    const totalPairs = (gridRows * gridCols) / 2; // 总共3对
+    let gameState = {};
+
+    // --- DOM 元素缓存 ---
+    const $board = $('#board');
+    const $message = $('#message');
+    const $startBtn = $('#startBtn');
+
+    // --- 2. 核心函数 ---
+
+    // 初始化/重置游戏
+    function initGame() {
+        gameState = {
+            cards: generateCardData(),
+            flippedCards: [],
+            matchedPairs: 0,
+            isGameActive: false,
+            score: 100 // ✅ 计分机制: 初始100分
+        };
+        
+        $board.html(''); // 清空棋盘
+        gameState.cards.forEach((cardData, index) => {
+            // 为每张卡片创建正面和背面，以实现翻转效果
+            const $card = $(`
+                <div class="card" data-index="${index}" data-value="${cardData.value}">
+                    <div class="card-face card-front"></div>
+                    <div class="card-face card-back">${cardData.value}</div>
+                </div>
+            `);
+            $board.append($card);
+        });
+
+        $message.text('');
+        $startBtn.show();
+    }
+
+    // 生成卡片数据
+    function generateCardData() {
+        const values = [];
+        const symbols = ['★', '♥', '♦']; // 3对不同的符号
+        for (let i = 0; i < totalPairs; i++) {
+            values.push({ value: symbols[i] }, { value: symbols[i] });
+        }
+        return values.sort(() => Math.random() - 0.5); // 打乱顺序
+    }
+
+    // 开始游戏
+    function startGame() {
+        initGame();
+        $startBtn.hide();
+        $message.text('找出所有配对！');
+        gameState.isGameActive = true;
+    }
+
+    // 处理卡片点击
+    function handleCardClick() {
+        if (!gameState.isGameActive) return;
+        
+        const $card = $(this);
+        // 如果卡片已翻开或已匹配，则不执行任何操作
+        if ($card.hasClass('flipped') || $card.hasClass('matched')) {
+            return;
+        }
+        
+        // 最多只能翻开两张卡片
+        if (gameState.flippedCards.length < 2) {
+            $card.addClass('flipped');
+            gameState.flippedCards.push($card);
+            
+            if (gameState.flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+    }
+
+    // 检查是否匹配
+    function checkMatch() {
+        const [$card1, $card2] = gameState.flippedCards;
+        
+        if ($card1.data('value') === $card2.data('value')) {
+            // 匹配成功
+            $card1.addClass('matched');
+            $card2.addClass('matched');
+            gameState.matchedPairs++;
+            gameState.flippedCards = []; // 清空已翻开的卡片
+            
+            if (gameState.matchedPairs === totalPairs) {
+                finishGame();
+            }
+        } else {
+            // 匹配失败
+            gameState.score = Math.max(0, gameState.score - 10); // ✅ 计分机制: 每次错误扣10分
+            
+            // 延迟1秒后将卡片翻回去
+            setTimeout(() => {
+                $card1.removeClass('flipped');
+                $card2.removeClass('flipped');
+                gameState.flippedCards = [];
+            }, 1000);
+        }
+    }
+    
+    // 游戏结束
+    function finishGame() {
+        gameState.isGameActive = false;
+        $message.text('🎉 恭喜你，全部匹配完成！').css('color', 'green');
+        
+        const finalScore = gameState.score;
+        const currentResultId = $('body').data('result-id');
+        
+        // ✅ 后端通信: 将分数提交到 "memory" 字段
+        updateResult(currentResultId, { "delayed_recall": finalScore });
+        
+        $startBtn.text('再玩一次').show();
+    }
+
+    // AJAX 更新函数
+    function updateResult(resultId, dataToUpdate) {
+        if (!resultId) { console.error("ID不存在!"); return; }
+        $.ajax({
+            url: `/api/results/${resultId}/`,
+            type: 'PATCH',
+            contentType: 'application/json',
+            data: JSON.stringify(dataToUpdate),
+            success: (response) => {
+                console.log('更新成功!', response);
+                alert(`分数 ${dataToUpdate.memory} 已成功提交！`);
+            },
+            error: (error) => console.error('更新失败:', error)
+        });
+    }
+
+    // --- 事件绑定 ---
+    $startBtn.on('click', startGame);
+    $board.on('click', '.card', handleCardClick); // 使用事件委托
+
+});
+</script>
+</body>
+</html>

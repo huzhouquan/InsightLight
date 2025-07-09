@@ -128,7 +128,7 @@
             
             $grid.html(''); // 使用jQuery清空网格
             for (let i = 0; i < totalCells; i++) {
-                const $cell = $('<div></div>').addClass('cell').attr('data-index', i);
+                const $cell = $('<div></div>').addClass('cell').data('index', i);
                 $grid.append($cell);
             }
             $message.text('请点击“开始游戏”').css('color', '#333');
@@ -146,7 +146,6 @@
                 if (!gameState.flashedCells.includes(rand)) {
                     gameState.flashedCells.push(rand);
                 }
-                console.log(gameState.flashedCells);
             }
             
             gameState.flashedCells.forEach(index => {

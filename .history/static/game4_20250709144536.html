@@ -2,109 +2,39 @@
 {% load static %}
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
     <title>位置记忆游戏</title>
     <style>
-        /* 美化后的CSS样式 */
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            text-align: center;
-            background: #f0f4f8;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 80px);
-            gap: 10px;
-            justify-content: center;
-            margin: 20px auto;
-        }
-
-        .cell {
-            width: 80px;
-            height: 80px;
-            background-color: #d1d5db; /* 默认灰色 */
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease; /* 平滑过渡效果 */
-        }
-        
-        .cell:hover {
-            transform: scale(1.05);
-        }
-
-        .cell.flashed {
-            background-color: #f97316; /* 闪烁橙色 */
-            transform: scale(1.1);
-        }
-
-        .cell.clicked {
-            background-color: #3b82f6; /* 点击蓝色 */
-        }
-
-        .cell.correct {
-            background-color: #10b981; /* 正确绿色 */
-        }
-
-        .cell.wrong {
-            background-color: #ef4444; /* 错误红色 */
-        }
-
-        #message {
-            margin-top: 20px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            min-height: 2em; /* 保持高度防止跳动 */
-        }
-
-        button {
-            margin-top: 20px;
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #2563eb;
-        }
-        
-        button:disabled {
-            background-color: #9ca3af;
-            cursor: not-allowed;
-        }
+        /* 您的CSS样式很棒，基本保持不变，只微调按钮状态 */
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: #f0f4f8; padding: 20px; }
+        h1 { margin-bottom: 20px; color: #333; }
+        .grid { display: grid; grid-template-columns: repeat(4, 80px); gap: 10px; justify-content: center; margin: auto; }
+        .cell { width: 80px; height: 80px; background-color: #ccc; border-radius: 8px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
+        .cell.flashed { background-color: #f97316; transform: scale(1.05); }
+        .cell.clicked { background-color: #3b82f6; }
+        .cell.correct { background-color: #10b981; }
+        .cell.wrong { background-color: #ef4444; }
+        #message { margin-top: 20px; font-size: 1.5rem; font-weight: bold; min-height: 2em; }
+        button { margin-top: 20px; padding: 10px 20px; font-size: 1rem; background-color: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background-color: #2563eb; }
+        button:disabled { background-color: #999; cursor: not-allowed; }
     </style>
 </head>
 
 <body data-result-id="{{ result_id }}">
+
     <h1>位置记忆游戏</h1>
     <div class="grid" id="grid"></div>
     <div id="message">请点击“开始游戏”</div>
-    
     <button id="startBtn">开始游戏</button>
 
     <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
     
     <script>
-    // ✅ 4. 将所有JS代码都包裹在 $(document).ready() 中
+    // 将所有JS代码都包裹在 $(document).ready() 中
     $(document).ready(function() {
 
-        // --- 游戏状态和配置 ---
+        // --- 1. 游戏状态和配置 ---
         const gridSize = 4;
         const totalCells = gridSize * gridSize;
         const flashCount = 4;
@@ -115,7 +45,7 @@
         const $message = $('#message');
         const $startBtn = $('#startBtn');
 
-        // --- 核心函数 ---
+        // --- 2. 核心函数 ---
 
         // 初始化/重置游戏
         function initGame() {
@@ -126,9 +56,10 @@
                 canPlayerClick: false
             };
             
-            $grid.html(''); // 使用jQuery清空网格
+            $grid.html(''); // 清空网格
             for (let i = 0; i < totalCells; i++) {
-                const $cell = $('<div></div>').addClass('cell').attr('data-index', i);
+                // 使用jQuery创建元素
+                const $cell = $('<div></div>').addClass('cell').data('index', i);
                 $grid.append($cell);
             }
             $message.text('请点击“开始游戏”').css('color', '#333');
@@ -138,24 +69,27 @@
         // 开始游戏流程
         function startGame() {
             initGame(); // 重置游戏状态
-            $startBtn.prop('disabled', true);
+            $startBtn.prop('disabled', true); // 禁用按钮防止重复点击
             $message.text('请记住闪烁的位置...');
             
+            // 随机选择要闪烁的格子
             while (gameState.flashedCells.length < flashCount) {
                 const rand = Math.floor(Math.random() * totalCells);
                 if (!gameState.flashedCells.includes(rand)) {
                     gameState.flashedCells.push(rand);
                 }
-                console.log(gameState.flashedCells);
             }
             
+            // 闪烁格子
             gameState.flashedCells.forEach(index => {
                 $(`.cell[data-index="${index}"]`).addClass('flashed');
             });
 
+            // 闪烁结束后
             setTimeout(() => {
-                $('.cell').removeClass('flashed');
+                $('.cell').removeClass('flashed'); // 移除闪烁效果
                 $message.text('请依次点击你记住的位置');
+                gameState.isGameActive = true; // 游戏正式开始
                 gameState.canPlayerClick = true; // 现在允许玩家点击
             }, 1500); // 闪烁1.5秒
         }
@@ -165,11 +99,13 @@
             if (!gameState.canPlayerClick) return;
 
             const $cell = $(this);
-            if ($cell.hasClass('clicked') || $cell.hasClass('correct') || $cell.hasClass('wrong')) return;
+            // 防止重复点击同一个格子
+            if ($cell.hasClass('clicked')) return;
 
             $cell.addClass('clicked');
             gameState.userClicks.push($cell.data('index'));
 
+            // 当玩家点击了足够数量的格子后，检查结果
             if (gameState.userClicks.length === flashCount) {
                 gameState.canPlayerClick = false; // 停止玩家点击
                 checkResult();
@@ -183,35 +119,31 @@
 
             gameState.userClicks.forEach(clickedIndex => {
                 const $cell = $cells.filter(`[data-index="${clickedIndex}"]`);
+                // 检查玩家点击的格子是否在当初闪烁的格子列表里
                 if (gameState.flashedCells.includes(clickedIndex)) {
-                    $cell.removeClass('clicked').addClass('correct');
+                    $cell.addClass('correct');
                     correctCount++;
                 } else {
-                    $cell.removeClass('clicked').addClass('wrong');
+                    $cell.addClass('wrong');
                 }
             });
-            
-            // 显示所有正确答案
-            gameState.flashedCells.forEach(index => {
-                $(`.cell[data-index="${index}"]`).addClass('correct');
-            });
 
-
+            // 计算分数并提交
             const finalScore = calculateScore(correctCount);
             if (correctCount === flashCount) {
                 $message.text('🎉 全部正确！记忆力真棒！').css('color', '#10b981');
             } else {
-                $message.text(`答对了 ${correctCount} 个，总共 ${flashCount} 个。`).css('color', '#ef4444');
+                $message.text(`❌ 答对了 ${correctCount} 个，总共 ${flashCount} 个。`).css('color', '#ef4444');
             }
 
             const currentResultId = $('body').data('result-id');
-            // ✅ 6. 将分数提交到 "memory" 字段
-            updateResult(currentResultId, { "memory": finalScore });
+            // 此游戏测试的是“记忆”能力
+            updateResult(currentResultId, { "memory": finalScore }); 
             
-            $startBtn.prop('disabled', false).text('再玩一次');
+            $startBtn.prop('disabled', false).text('再玩一次'); // 允许用户重玩
         }
 
-        // ✅ 5. 新增：根据规则计算分数
+        // ✅ 新增：根据规则计算分数
         function calculateScore(correctCount) {
             // 0对=50分, 4对=100分。总分差是50，分4步走完，每步12.5分。
             const score = 50 + (correctCount * 12.5);
@@ -241,13 +173,12 @@
             });
         }
 
-        // --- 事件绑定 ---
+        // --- 3. 事件绑定 ---
         $startBtn.on('click', startGame);
-        // 使用事件委托来绑定点击，效率更高
-        $grid.on('click', '.cell', handleCellClick); 
+        $grid.on('click', '.cell', handleCellClick); // 使用事件委托来绑定点击
 
-        // --- 页面初始化 ---
-        initGame(); // 首次加载时，创建好网格
+        // --- 4. 页面初始化 ---
+        initGame(); // 初始化游戏面板
     });
     </script>
 </body>

@@ -128,7 +128,7 @@
             
             $grid.html(''); // 使用jQuery清空网格
             for (let i = 0; i < totalCells; i++) {
-                const $cell = $('<div></div>').addClass('cell').attr('data-index', i);
+                const $cell = $('<div></div>').addClass('cell').data('index', i);
                 $grid.append($cell);
             }
             $message.text('请点击“开始游戏”').css('color', '#333');
@@ -137,27 +137,39 @@
 
         // 开始游戏流程
         function startGame() {
-            initGame(); // 重置游戏状态
+            // 只重置网格和用户点击，不重置flashedCells
+            gameState.userClicks = [];
+            gameState.isGameActive = false;
+            gameState.canPlayerClick = false;
+            $grid.html('');
+            for (let i = 0; i < totalCells; i++) {
+                const $cell = $('<div></div>').addClass('cell').data('index', i);
+                $grid.append($cell);
+            }
             $startBtn.prop('disabled', true);
             $message.text('请记住闪烁的位置...');
-            
+        
+            // 生成新的闪烁序列
+            gameState.flashedCells = [];
             while (gameState.flashedCells.length < flashCount) {
                 const rand = Math.floor(Math.random() * totalCells);
                 if (!gameState.flashedCells.includes(rand)) {
                     gameState.flashedCells.push(rand);
                 }
-                console.log(gameState.flashedCells);
             }
-            
-            gameState.flashedCells.forEach(index => {
-                $(`.cell[data-index="${index}"]`).addClass('flashed');
-            });
+        
+            // 先强制浏览器渲染，再添加flashed类
+            setTimeout(() => {
+                gameState.flashedCells.forEach(index => {
+                    $(`.cell[data-index="${index}"]`).addClass('flashed');
+                });
+            }, 50); // 延迟50ms再添加flashed类，确保渲染
 
             setTimeout(() => {
                 $('.cell').removeClass('flashed');
                 $message.text('请依次点击你记住的位置');
                 gameState.canPlayerClick = true; // 现在允许玩家点击
-            }, 1500); // 闪烁1.5秒
+            }, 1550); // 保证闪烁时间为1.5秒
         }
 
         // 处理格子点击事件

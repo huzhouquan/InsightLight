@@ -172,7 +172,7 @@ $(document).ready(function() {
             data: JSON.stringify(dataToUpdate),
             success: (response) => {
                 console.log('更新成功!', response);
-                alert(`分数已成功提交！`);
+                alert(`分数 ${dataToUpdate.memory} 已成功提交！`);
             },
             error: (error) => console.error('更新失败:', error)
         });

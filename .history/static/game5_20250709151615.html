@@ -15,7 +15,7 @@
         .card { width: 100px; height: 100px; background-color: #3b82f6; color: white; font-size: 3rem; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 10px; transition: transform 0.4s; transform-style: preserve-3d; }
         .card .card-face { backface-visibility: hidden; position: absolute; }
         .card .card-back { transform: rotateY(180deg); }
-        .card.flipped { transform: rotateY(180deg); background-color: #f97815; }
+        .card.flipped { transform: rotateY(180deg); background-color: #dd8c4e; }
         .card.matched { background-color: #10b981; cursor: default; transform: rotateY(180deg) scale(1.05); }
         #message { margin-top: 20px; font-size: 1.5rem; font-weight: bold; min-height: 1.5em; }
         button { padding: 12px 30px; font-size: 1.1rem; background-color: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; }
@@ -140,7 +140,7 @@ $(document).ready(function() {
         $message.text(`🎉 完成！用时: ${elapsedSeconds.toFixed(2)}秒，得分: ${finalScore}`).css('color', 'green');
         
         const currentResultId = $('body').data('result-id');
-        updateResult(currentResultId, { "delayed_recall": finalScore });
+        updateResult(currentResultId, { "memory": finalScore });
         
         $startBtn.text('再玩一次').show();
     }
@@ -172,7 +172,7 @@ $(document).ready(function() {
             data: JSON.stringify(dataToUpdate),
             success: (response) => {
                 console.log('更新成功!', response);
-                alert(`分数已成功提交！`);
+                alert(`分数 ${dataToUpdate.memory} 已成功提交！`);
             },
             error: (error) => console.error('更新失败:', error)
         });
