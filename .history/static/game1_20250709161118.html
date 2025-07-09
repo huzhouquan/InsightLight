@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>日期判断</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            text-align: center;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+        }
+
+        .date-selectors {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 8px 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body data-result-id="{{ result_id }}">
+
+    <h1>日期判断</h1>
+    <p>请输入今天的日期</p>
+    <select id="yearSelect"></select>
+    <i>年</i>
+    <select id="monthSelect"></select>
+    <i>月</i>
+    <select id="daySelect"></select>
+    <i>日</i>
+    
+    <button id="checkDateBtn">确认日期</button>
+    <p id="result"></p>
+
+    <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+    
+    <script>
+    // ✅ 修正2: 将所有JS代码都包裹在 $(document).ready() 中
+    $(document).ready(function() {
+
+        // --- 状态变量 ---
+        const currentResultId = $('body').data('result-id');
+        console.log("成功从HTML中读取到ID:", currentResultId);
+
+        // --- 函数定义 ---
+
+        function updateResult(resultId, dataToUpdate) {
+            // 检查ID是否存在，防止发送错误的请求
+            if (!resultId) {
+                console.error("错误: resultId 为空，无法发送更新请求！");
+                alert("页面初始化错误，请返回重试。");
+                return;
+            }
+            $.ajax({
+                url: `/api/results/${resultId}/`, // 使用相对路径更佳
+                type: 'PATCH',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToUpdate),
+                success: function(response) {
+                    console.log('更新成功!', response);
+                    alert('分数已成功提交！');
+                },
+                error: function(error) {
+                    console.error('更新失败:', error);
+                    alert('提交失败，请查看控制台获取详情。');
+                }
+            });
+        }
+
+        function initializeSelectors() {
+            // 使用jQuery选择器，保持代码风格统一
+            const yearSelect = $('#yearSelect');
+            const monthSelect = $('#monthSelect');
+            const daySelect = $('#daySelect');
+
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year >= currentYear - 100; year--) {
+                yearSelect.append(`<option value="${year}">${year}</option>`);
+            }
+            for (let month = 1; month <= 12; month++) {
+                monthSelect.append(`<option value="${String(month).padStart(2, '0')}">${month}</option>`);
+            }
+
+            function updateDays() {
+                const year = yearSelect.val();
+                const month = monthSelect.val();
+                const daysInMonth = new Date(year, month, 0).getDate();
+                daySelect.html('');
+                for (let day = 1; day <= daysInMonth; day++) {
+                    daySelect.append(`<option value="${String(day).padStart(2, '0')}">${day}</option>`);
+                }
+            }
+            updateDays();
+            yearSelect.on('change', updateDays);
+            monthSelect.on('change', updateDays);
+        }
+
+        function checkDate() {
+            const year = $('#yearSelect').val();
+            const month = $('#monthSelect').val();
+            const day = $('#daySelect').val();
+            const resultEl = $('#result');
+
+            const today = new Date();
+            let score = 0;
+            if (year == today.getFullYear() && month == (today.getMonth() + 1) && day == today.getDate()) {
+                resultEl.text('选择的日期与当前日期相同！').css('color', 'green');
+                score = 100;
+            } else {
+                resultEl.text('选择的日期与当前日期不同！').css('color', 'red');
+                score = 0;
+            }
+            
+            const dataToUpdate = { "orientation": score };
+            updateResult(currentResultId, dataToUpdate);
+        }
+        
+        // --- 事件绑定和初始化 ---
+        
+        // ✅ 修正3: 使用jQuery的方式来绑定点击事件
+        $('#checkDateBtn').on('click', checkDate);
+
+        // 初始化下拉菜单
+        initializeSelectors();
+    });
+    </script>
+</body>
+</html>
+

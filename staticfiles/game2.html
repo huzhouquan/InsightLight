@@ -3,130 +3,67 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>舒尔特方格 - 注意力训练</title>
+    <title>舒尔特方格 - 4x4挑战</title>
     <style>
-        main {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        /* CSS样式与之前美化后的版本保持一致，此处为了简洁省略 */
+        :root { --primary-color: #3B82F6; --correct-color: #10B981; --error-color: #EF4444; --light-bg: #F3F4F6; --dark-text: #1F2937; --light-text: #6B7280; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--light-bg); margin: 0; }
+        main { width: 100%; max-width: 500px; padding: 20px; }
+        .game-container { display: flex; flex-direction: column; align-items: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        h1 { font-size: 2.5rem; font-weight: 700; color: var(--dark-text); margin: 0 0 10px 0; }
+        button { font-size: 1.2rem; font-weight: 600; color: white; background-color: var(--primary-color); border: none; border-radius: 10px; padding: 12px 30px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; margin-top: 20px; }
+        button:hover { background-color: #2563EB; transform: translateY(-2px); }
+        button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        p { font-size: 1.2rem; color: var(--light-text); margin: 20px 0 0 0; min-height: 1.5em; }
+        table { border-collapse: collapse; margin-top: 20px; }
+        td { width: 80px; height: 80px; border: 2px solid #E5E7EB; font-size: 2.5rem; font-weight: 500; color: var(--dark-text); text-align: center; vertical-align: middle; cursor: pointer; user-select: none; transition: all 0.2s ease-in-out; }
+        td:hover { background-color: #E5E7EB; transform: scale(1.05); }
+        td.correct { background-color: var(--correct-color); color: white; transform: scale(1.1); border-color: var(--correct-color); }
+        td.error { background-color: var(--error-color); color: white; animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        button {
-            margin-top: 20px;
-            font-size: 20px;
-        }
-
-
-        h1 {
-            font-size: 30px;
-            margin: 20px 0px 10px;
-        }
-
-        select {
-            font-size: 18px;
-            margin-top: 15px;
-        }
-
-        p {
-            margin: 0px 0px 20px;
-        }
-
-        table {
-            margin-top: 20px;
-            font-size: 25px;
-            text-align: center;
-        }
-
-
-        tr {
-            display: flex;
-        }
-
-        td {
-            width: 60px;
-            height: 60px;
-            border-color: #000;
-            border-style: solid;
-            border-width: 2px 2px 0px 0px;
-            padding: 0px;
-            margin: 0px;
-            vertical-align: unset;
-            display: flex;
-            transition: .25s;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        td.yes {
-            color: #0f0;
-        }
-
-        td.error {
-            color: #f00;
-        }
-
-        tbody {
-            border-color: #000;
-            border-style: solid;
-            border-width: 2px 2px 4px 4px;
-            display: block;
-        }
+        /* “下一题”按钮的样式 (保持不变) */
+        .next-button-container { position: fixed; right: 40px; bottom: 40px; z-index: 1000; }
+        .next-button-container .btn { background-color: #10b981; padding: 12px 30px; font-size: 1.1rem; font-weight: 500; color: white; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.2s ease-in-out; }
+        .next-button-container .btn:hover { background-color: #0f9d58; transform: translateY(-2px); }
     </style>
 </head>
 <body data-result-id="{{ result_id }}">
 
 <main>
-    <section id="setup-screen" class="active">
-        <h1>舒尔特方格挑战</h1>
-        <select id="size-selector" size="3">
-            <option value="3">3x3 (9个数字)</option>
-            <option value="4">4x4 (16个数字)</option>
-            <option value="5" selected>5x5 (25个数字)</option>
-        </select>
-        <button id="startBtn">开始！</button>
-    </section>
-
-    <section id="game-screen">
+    <section class="game-container">
         <h1 id="timer">00:00.00</h1>
-        <p id="instruction">请按顺序从 1 开始点击</p>
         <table id="grid-table">
             <tbody></tbody>
         </table>
+        <p id="instruction">请按顺序从 1 开始点击</p>
+        <button id="startBtn">开始游戏</button>
     </section>
 </main>
+
+<div class="next-button-container" style="display: none;">
+    {% if next_game_url %}
+        <a href="{{ next_game_url }}" class="btn">下一题</a>
+    {% else %}
+        <a href="{% url 'choice_page' %}" class="btn">完成！返回选择页</a>
+    {% endif %}
+</div>
 
 <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
 <script>
 $(document).ready(function() {
 
     // --- 1. 状态管理 ---
-    // 使用一个对象来统一管理游戏状态
     let gameState = {
-        size: 5,
+        size: 4, // ✅ 修改1: 将难度硬编码为 4x4
         nextNumber: 1,
-        maxNumber: 25,
+        maxNumber: 16, // 4 * 4 = 16
         startTime: null,
         timerInterval: null,
         isGameActive: false
     };
 
     // --- 2. DOM 元素缓存 ---
-    const setupScreen = $('#setup-screen');
-    const gameScreen = $('#game-screen');
-    const sizeSelector = $('#size-selector');
     const startBtn = $('#startBtn');
     const timerDisplay = $('#timer');
     const instructionText = $('#instruction');
@@ -134,65 +71,71 @@ $(document).ready(function() {
 
     // --- 3. 核心函数 ---
 
-    // 初始化并开始游戏
-    function startGame() {
-        // 设置游戏参数
-        gameState.size = parseInt(sizeSelector.val());
+    // 初始化游戏（只创建棋盘，不开始计时）
+    function initGame() {
+        // 重置游戏状态
         gameState.nextNumber = 1;
-        gameState.maxNumber = gameState.size * gameState.size;
-        gameState.isGameActive = true;
+        gameState.isGameActive = false;
         
-        // 生成并渲染表格
-        renderGrid();
-
-        // 切换界面
-        setupScreen.removeClass('active');
-        gameScreen.addClass('active');
-
-        // 绑定单元格点击事件
-        gridTableBody.on('click', 'td', handleCellClick);
+        // 停止并重置计时器显示
+        clearInterval(gameState.timerInterval);
+        timerDisplay.text('00:00.00');
+        instructionText.text('请按顺序从 1 开始点击');
         
-        // 游戏开始，启动计时器
-        gameState.startTime = Date.now();
-        gameState.timerInterval = setInterval(updateTimer, 50); // 每50毫秒更新一次计时器
+        renderGrid(); // 生成并渲染表格
         
-        updateInstruction();
+        // 让按钮可用并显示正确文本
+        startBtn.prop('disabled', false).text('开始游戏');
+        $('.next-button-container').hide(); // 隐藏下一题按钮
     }
 
     // 渲染方格
     function renderGrid() {
         const numbers = Array.from({ length: gameState.maxNumber }, (_, i) => i + 1);
-        numbers.sort(() => Math.random() - 0.5); // 洗牌算法
+        numbers.sort(() => Math.random() - 0.5);
 
-        gridTableBody.html(''); // 清空旧的表格
+        gridTableBody.html('');
         for (let i = 0; i < gameState.size; i++) {
             const row = $('<tr></tr>');
             for (let j = 0; j < gameState.size; j++) {
-                const number = numbers.pop();
-                row.append(`<td data-number="${number}">${number}</td>`);
+                row.append(`<td data-number="${numbers.pop()}">${j * gameState.size + i + 1}</td>`);
             }
             gridTableBody.append(row);
         }
+        // 重新填充数字
+        const cells = gridTableBody.find('td').get().sort(() => Math.random() - 0.5);
+        $(cells).each(function(i){
+             $(this).text(i + 1).data('number', i + 1);
+        });
     }
 
+    // 开始游戏（只负责计时和状态激活）
+    function startGame() {
+        if (gameState.isGameActive) return;
+        
+        // 每次开始前都重新初始化棋盘
+        initGame();
+        
+        gameState.isGameActive = true;
+        gameState.startTime = Date.now();
+        gameState.timerInterval = setInterval(updateTimer, 50);
+        
+        startBtn.prop('disabled', true).text('游戏中...');
+        updateInstruction();
+    }
+    
     // 处理单元格点击
     function handleCellClick() {
         if (!gameState.isGameActive) return;
-
         const clickedNumber = parseInt($(this).data('number'));
-        
         if (clickedNumber === gameState.nextNumber) {
-            // 点击正确
-            $(this).addClass('correct');
+            $(this).addClass('correct').off('click');
             gameState.nextNumber++;
             updateInstruction();
-
             if (gameState.nextNumber > gameState.maxNumber) {
-                // 游戏完成
                 finishGame();
             }
         } else {
-            // 点击错误，给予视觉反馈
             $(this).addClass('error');
             setTimeout(() => $(this).removeClass('error'), 300);
         }
@@ -201,71 +144,33 @@ $(document).ready(function() {
     // 游戏结束处理
     function finishGame() {
         gameState.isGameActive = false;
-        clearInterval(gameState.timerInterval); // 停止计时器
+        clearInterval(gameState.timerInterval);
         
         const elapsedMilliseconds = Date.now() - gameState.startTime;
         const finalTime = formatTime(elapsedMilliseconds);
         timerDisplay.text(finalTime);
-        instructionText.text(`恭喜完成！最终用时: ${finalTime}`);
-
-        // 计算分数并提交
+        instructionText.html(`🎉 恭喜完成！<br>最终用时: ${finalTime}`);
+        
         const score = calculateScore(elapsedMilliseconds / 1000);
         const currentResultId = $('body').data('result-id');
         updateResult(currentResultId, { "attention": score });
+
+        startBtn.prop('disabled', false).text('再玩一次'); // 按钮变为“再玩一次”
     }
 
-    // 更新提示文字
-    function updateInstruction() {
-        instructionText.text(`请点击: ${gameState.nextNumber}`);
-    }
+    // (updateTimer, formatTime, calculateScore, updateResult 等函数保持不变)
+    function updateTimer() { const elapsed = Date.now() - gameState.startTime; timerDisplay.text(formatTime(elapsed)); }
+    function formatTime(ms) { const m = Math.floor(ms / 60000).toString().padStart(2, '0'); const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0'); const ms_s = Math.floor((ms % 1000) / 10).toString().padStart(2, '0'); return `${m}:${s}.${ms_s}`; }
+    function calculateScore(s) { if (s <= 60) return 100; if (s >= 600) return 0; return Math.round(100 - ((s - 60) / 540) * 100); }
+    function updateResult(id, data) { if (!id) { console.error("ID不存在!"); return; } $.ajax({ url: `/api/results/${id}/`, type: 'PATCH', contentType: 'application/json', data: JSON.stringify(data), success: (res) => { console.log('更新成功!', res); alert('分数已成功提交！'); $('.next-button-container').show(); }, error: (err) => { console.error('更新失败:', err); $('.next-button-container').show(); } }); }
+    function updateInstruction() { instructionText.text(`请点击: ${gameState.nextNumber}`); }
 
-    // 更新计时器显示
-    function updateTimer() {
-        const elapsed = Date.now() - gameState.startTime;
-        timerDisplay.text(formatTime(elapsed));
-    }
-    
-    // 格式化时间显示
-    function formatTime(ms) {
-        const minutes = Math.floor(ms / 60000);
-        const seconds = Math.floor((ms % 60000) / 1000);
-        const milliseconds = Math.floor((ms % 1000) / 10);
-        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
-    }
 
-    // ✅ 新增：根据规则计算分数
-    function calculateScore(elapsedSeconds) {
-        if (elapsedSeconds <= 60) {
-            return 100; // 60秒以内都是满分
-        } else if (elapsedSeconds <= 600) { // 60秒到10分钟 (600秒)
-            // 分数从100分线性递减到0分
-            // 变化范围是 540 秒 (600 - 60)
-            const score = 100 - ((elapsedSeconds - 60) / 540) * 100;
-            return Math.round(score);
-        } else {
-            return 0; // 超过10分钟为0分
-        }
-    }
-
-    // AJAX 更新函数
-    function updateResult(resultId, dataToUpdate) {
-        if (!resultId) { console.error("ID不存在!"); return; }
-        $.ajax({
-            url: `/api/results/${resultId}/`,
-            type: 'PATCH',
-            contentType: 'application/json',
-            data: JSON.stringify(dataToUpdate),
-            success: (response) => {
-                console.log('更新成功!', response);
-                alert('分数已成功提交！');
-            },
-            error: (error) => console.error('更新失败:', error)
-        });
-    }
-
-    // --- 4. 事件绑定 ---
+    // --- 4. 事件绑定与初始化 ---
     startBtn.on('click', startGame);
-
+    gridTableBody.on('click', 'td', handleCellClick);
+    
+    initGame(); // ✅ 修改2: 页面加载时，只初始化棋盘，不开始游戏
 });
 </script>
 </body>

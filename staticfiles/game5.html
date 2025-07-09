@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>记忆棋盘游戏 (时间计分版)</title>
     <style>
-        /* CSS样式与之前美化后的版本保持一致，此处为了简洁省略 */
+        /* 您的原有CSS样式保持不变... */
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-align: center; background: #f0f4f8; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
         h1 { margin-bottom: 10px; color: #1f2937; }
@@ -15,11 +15,34 @@
         .card { width: 100px; height: 100px; background-color: #3b82f6; color: white; font-size: 3rem; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 10px; transition: transform 0.4s; transform-style: preserve-3d; }
         .card .card-face { backface-visibility: hidden; position: absolute; }
         .card .card-back { transform: rotateY(180deg); }
-        .card.flipped { transform: rotateY(180deg); background-color: #f97815; }
+        .card.flipped { transform: rotateY(180deg); background-color: #eb9124; }
         .card.matched { background-color: #10b981; cursor: default; transform: rotateY(180deg) scale(1.05); }
         #message { margin-top: 20px; font-size: 1.5rem; font-weight: bold; min-height: 1.5em; }
         button { padding: 12px 30px; font-size: 1.1rem; background-color: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; }
-        button:disabled { background-color: #eade5d; cursor: not-allowed; }
+        button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+        /* ✅ 新增1: “下一题”按钮的容器样式 */
+        .next-button-container {
+            position: fixed;
+            right: 40px;
+            bottom: 40px;
+            z-index: 1000;
+        }
+        .next-button-container .btn {
+            background-color: #10b981; /* 绿色 */
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.2s ease-in-out;
+        }
+        .next-button-container .btn:hover {
+            background-color: #0f9d58;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 
@@ -33,11 +56,20 @@
     <button id="startBtn">开始游戏</button>
 </div>
 
+<div class="next-button-container" style="display: none;">
+    {% if next_game_url %}
+        <a href="{{ next_game_url }}" class="btn">下一题</a>
+    {% else %}
+        <a href="{% url 'choice_page' %}" class="btn">完成！返回选择页</a>
+    {% endif %}
+</div>
+
+
 <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
 <script>
 $(document).ready(function() {
     
-    // --- 1. 游戏状态和配置 ---
+    // --- 游戏状态和配置 ---
     const gridRows = 2;
     const gridCols = 3;
     const totalPairs = (gridRows * gridCols) / 2;
@@ -48,121 +80,33 @@ $(document).ready(function() {
     const $message = $('#message');
     const $startBtn = $('#startBtn');
 
-    // --- 2. 核心函数 ---
-
+    // ✅ 修改3: 在 initGame 中确保“下一题”按钮被隐藏
     function initGame() {
         gameState = {
-            cards: generateCardData(),
-            flippedCards: [],
-            matchedPairs: 0,
-            isGameActive: false,
-            startTime: 0 // ✅ 新增：用于记录游戏开始时间
+            cards: generateCardData(), flippedCards: [], matchedPairs: 0,
+            isGameActive: false, startTime: 0
         };
         
         $board.html('');
         gameState.cards.forEach((cardData, index) => {
-            const $card = $(`
-                <div class="card" data-index="${index}" data-value="${cardData.value}">
-                    <div class="card-face card-front"></div>
-                    <div class="card-face card-back">${cardData.value}</div>
-                </div>
-            `);
+            const $card = $(`<div class="card" data-index="${index}" data-value="${cardData.value}"><div class="card-face card-front"></div><div class="card-face card-back">${cardData.value}</div></div>`);
             $board.append($card);
         });
 
         $message.text('');
         $startBtn.prop('disabled', false).show().text('开始游戏');
+        $('.next-button-container').hide(); // 确保按钮在重置时隐藏
     }
 
-    function generateCardData() {
-        const values = [];
-        const symbols = ['★', '♥', '♦'];
-        for (let i = 0; i < totalPairs; i++) {
-            values.push({ value: symbols[i] }, { value: symbols[i] });
-        }
-        return values.sort(() => Math.random() - 0.5);
-    }
-
-    function startGame() {
-        initGame();
-        $startBtn.hide();
-        $message.text('找出所有配对！');
-        gameState.isGameActive = true;
-        // ✅ 修改：游戏开始时，记录当前时间
-        gameState.startTime = Date.now();
-    }
-
-    function handleCardClick() {
-        if (!gameState.isGameActive || gameState.flippedCards.length >= 2) return;
-        
-        const $card = $(this);
-        if ($card.hasClass('flipped')) return;
-        
-        $card.addClass('flipped');
-        gameState.flippedCards.push($card);
-        
-        if (gameState.flippedCards.length === 2) {
-            checkMatch();
-        }
-    }
-
-    function checkMatch() {
-        const [$card1, $card2] = gameState.flippedCards;
-        
-        if ($card1.data('value') === $card2.data('value')) {
-            $card1.addClass('matched');
-            $card2.addClass('matched');
-            gameState.matchedPairs++;
-            gameState.flippedCards = [];
-            
-            if (gameState.matchedPairs === totalPairs) {
-                finishGame();
-            }
-        } else {
-            setTimeout(() => {
-                $card1.removeClass('flipped');
-                $card2.removeClass('flipped');
-                gameState.flippedCards = [];
-            }, 1000);
-        }
-    }
+    // (startGame, handleCardClick, checkMatch, calculateScore 等函数保持不变)
+    function generateCardData() { const values = []; const symbols = ['★', '♥', '♦']; for (let i = 0; i < totalPairs; i++) { values.push({ value: symbols[i] }, { value: symbols[i] }); } return values.sort(() => Math.random() - 0.5); }
+    function startGame() { initGame(); $startBtn.hide(); $message.text('找出所有配对！'); gameState.isGameActive = true; gameState.startTime = Date.now(); }
+    function handleCardClick() { if (!gameState.isGameActive || gameState.flippedCards.length >= 2) return; const $card = $(this); if ($card.hasClass('flipped')) return; $card.addClass('flipped'); gameState.flippedCards.push($card); if (gameState.flippedCards.length === 2) { checkMatch(); } }
+    function checkMatch() { const [$card1, $card2] = gameState.flippedCards; if ($card1.data('value') === $card2.data('value')) { $card1.addClass('matched'); $card2.addClass('matched'); gameState.matchedPairs++; gameState.flippedCards = []; if (gameState.matchedPairs === totalPairs) { finishGame(); } } else { setTimeout(() => { $card1.removeClass('flipped'); $card2.removeClass('flipped'); gameState.flippedCards = []; }, 1000); } }
+    function finishGame() { gameState.isGameActive = false; const elapsedMilliseconds = Date.now() - gameState.startTime; const elapsedSeconds = elapsedMilliseconds / 1000; const finalScore = calculateScore(elapsedSeconds); $message.text(`🎉 完成！用时: ${elapsedSeconds.toFixed(2)}秒，得分: ${finalScore}`).css('color', 'green'); const currentResultId = $('body').data('result-id'); updateResult(currentResultId, { "memory": finalScore }); $startBtn.text('再玩一次').show(); }
+    function calculateScore(elapsedSeconds) { if (elapsedSeconds <= 30) { return 100; } if (elapsedSeconds >= 300) { return 0; } const score = 100 - ((elapsedSeconds - 30) / 270) * 100; return Math.round(score); }
     
-    function finishGame() {
-        gameState.isGameActive = false;
-        
-        // ✅ 修改：计算游戏用时
-        const elapsedMilliseconds = Date.now() - gameState.startTime;
-        const elapsedSeconds = elapsedMilliseconds / 1000;
-        
-        // ✅ 修改：根据用时计算分数
-        const finalScore = calculateScore(elapsedSeconds);
-        
-        $message.text(`🎉 完成！用时: ${elapsedSeconds.toFixed(2)}秒，得分: ${finalScore}`).css('color', 'green');
-        
-        const currentResultId = $('body').data('result-id');
-        updateResult(currentResultId, { "delayed_recall": finalScore });
-        
-        $startBtn.text('再玩一次').show();
-    }
-
-    // ✅ 修改：实现新的计分函数
-    function calculateScore(elapsedSeconds) {
-        if (elapsedSeconds <= 30) {
-            return 100; // 30秒以内都是满分
-        }
-        if (elapsedSeconds >= 300) { // 5分钟 = 300秒
-            return 0;   // 超过5分钟都是0分
-        }
-        
-        // 在30秒到300秒之间，分数从100线性递减到0
-        // 总时长范围 = 300 - 30 = 270秒
-        // 每秒扣除的分数 = 100分 / 270秒
-        const score = 100 - ((elapsedSeconds - 30) / 270) * 100;
-        
-        return Math.round(score); // 返回一个整数
-    }
-
-    // AJAX 更新函数 (保持不变)
+    // ✅ 修改4: 在 updateResult 的 success 回调中显示按钮
     function updateResult(resultId, dataToUpdate) {
         if (!resultId) { console.error("ID不存在!"); return; }
         $.ajax({
@@ -172,9 +116,16 @@ $(document).ready(function() {
             data: JSON.stringify(dataToUpdate),
             success: (response) => {
                 console.log('更新成功!', response);
-                alert(`分数已成功提交！`);
+                alert(`分数 ${dataToUpdate.memory} 已成功提交！`);
+                // 在分数成功提交后，显示“下一题”按钮
+                $('.next-button-container').show();
             },
-            error: (error) => console.error('更新失败:', error)
+            error: (error) => {
+                console.error('更新失败:', error);
+                alert('提交失败，请查看控制台获取详情。');
+                 // 即使提交失败，也显示按钮，让用户可以继续
+                $('.next-button-container').show();
+            }
         });
     }
 
@@ -182,7 +133,7 @@ $(document).ready(function() {
     $startBtn.on('click', startGame);
     $board.on('click', '.card', handleCardClick);
 
-    // 页面加载时只创建棋盘，不开始游戏
+    // 页面加载时只创建棋盘
     initGame();
 });
 </script>
