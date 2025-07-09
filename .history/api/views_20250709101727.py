@@ -76,7 +76,7 @@ def game6_view(request):
 def game7_view(request):
     result_id = request.session.get('result_id')
     context = {
-        'game_id': 7,
+        'game_id': 3,
         'result_id': result_id # 将我们从session中取出的ID传递给模板
     }
     return render(request, 'game7.html')
