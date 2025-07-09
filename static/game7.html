@@ -132,41 +132,7 @@
   <button class="btn" id="restartBtn" style="display: none;">重新开始</button>
 </div>
 
-<script src="{% static 'jquery-3.7.1.min.js' %}"></script>
-
-    <script>
-    // ✅ 修正2: 将所有JS代码都包裹在 $(document).ready() 中
-    $(document).ready(function() {
-
-        // --- 状态变量 ---
-        const currentResultId = $('body').data('result-id');
-        console.log("成功从HTML中读取到ID:", currentResultId);
-
-        // --- 函数定义 ---
-
-        function updateResult(resultId, dataToUpdate) {
-            // 检查ID是否存在，防止发送错误的请求
-            if (!resultId) {
-                console.error("错误: resultId 为空，无法发送更新请求！");
-                alert("页面初始化错误，请返回重试。");
-                return;
-            }
-            $.ajax({
-                url: `/api/results/${resultId}/`, // 使用相对路径更佳
-                type: 'PATCH',
-                contentType: 'application/json',
-                data: JSON.stringify(dataToUpdate),
-                success: function(response) {
-                    console.log('更新成功!', response);
-                    alert('分数已成功提交！');
-                },
-                error: function(error) {
-                    console.error('更新失败:', error);
-                    alert('提交失败，请查看控制台获取详情。');
-                }
-            });
-        }
-
+<script src="{% static 'jquery-3.7.1.min.js' %}">
   const gameData = [
     {
       category: "水果",
@@ -215,6 +181,36 @@
   const totalSpan = document.getElementById("total");
   const categorySpan = document.getElementById("category");
 
+  $(document).ready(function() {
+
+        // --- 状态变量 ---
+        const currentResultId = $('body').data('result-id');
+        console.log("成功从HTML中读取到ID:", currentResultId);
+
+        // --- 函数定义 ---
+
+        function updateResult(resultId, dataToUpdate) {
+            // 检查ID是否存在，防止发送错误的请求
+            if (!resultId) {
+                console.error("错误: resultId 为空，无法发送更新请求！");
+                alert("页面初始化错误，请返回重试。");
+                return;
+            }
+            $.ajax({
+                url: `/api/results/${resultId}/`, // 使用相对路径更佳
+                type: 'PATCH',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToUpdate),
+                success: function(response) {
+                    console.log('更新成功!', response);
+                    alert('分数已成功提交！');
+                },
+                error: function(error) {
+                    console.error('更新失败:', error);
+                    alert('提交失败，请查看控制台获取详情。');
+                }
+            });
+        }})
 
   function startGame() {
     currentRound = 0;
@@ -309,13 +305,7 @@
     categorySpan.textContent = "";
     feedbackDiv.className = "feedback";
     feedbackDiv.textContent = `游戏结束！你的得分是：${score}/${gameData.length}`;
-    
-    
-    const resultScore  = (score/gameData.length)
-    updateResult(result_id, { "abstraction":  resultScore});
-    
-    
-    
+    updateResult(result_id, { "abstraction": (score/gameData.length) });
     nextBtn.style.display = "none";
     restartBtn.style.display = "inline-block";
   }
@@ -326,7 +316,7 @@
   // 初始化游戏
   window.addEventListener("DOMContentLoaded", () => {
     startGame();
-  })});
+  });
   
 </script>
 
