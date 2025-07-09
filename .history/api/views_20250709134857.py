@@ -51,42 +51,37 @@ def game3_view(request):
         'game_id': 3,
         'result_id': result_id # 将我们从session中取出的ID传递给模板
     }
-    return render(request, 'game3.html',context)
+    return render(request, 'game3.html')
 def game4_view(request):
     result_id = request.session.get('result_id')
     context = {
         'game_id': 4,
         'result_id': result_id # 将我们从session中取出的ID传递给模板
     }
-    return render(request, 'game4.html',context)
+    return render(request, 'game4.html')
 def game5_view(request):
     result_id = request.session.get('result_id')
     context = {
         'game_id': 5,
         'result_id': result_id # 将我们从session中取出的ID传递给模板
     }
-    return render(request, 'game5.html',context)
+    return render(request, 'game5.html')
 def game6_view(request):
     result_id = request.session.get('result_id')
     context = {
         'game_id': 6,
         'result_id': result_id # 将我们从session中取出的ID传递给模板
     }
-    return render(request, 'game6.html',context)
+    return render(request, 'game6.html')
 def game7_view(request):
     result_id = request.session.get('result_id')
     context = {
         'game_id': 7,
         'result_id': result_id # 将我们从session中取出的ID传递给模板
     }
-    return render(request, 'game7.html',context)
+    return render(request, 'game7.html')
 
-def result_view(request):
-    result_id = request.session.get('result_id')
-    context = {
-        'result_id': result_id # 将我们从session中取出的ID传递给模板
-    }
-    return render(request, 'result.html',context)
+def result_view
 @csrf_exempt # 注意：这在开发中很方便，但在生产环境中需要更安全的认证方式
 def result_list_create(request):
     """
