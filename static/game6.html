@@ -91,7 +91,7 @@
     }
   </style>
 </head>
-<body>
+<body  data-result-id="{{ result_id }}">
 
   <h1>选词填空</h1>
 
@@ -265,8 +265,13 @@
 
       const resultDiv = document.getElementById('result');
       resultDiv.textContent = `你答对了 ${score} 道题，共 ${total} 道题。`;
+      
+      
+      
       const dataToUpdate = {"naming": (score/total)}
       updateResult(id, dataToUpdate);
+
+      
     }
 
     
