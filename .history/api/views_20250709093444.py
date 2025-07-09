@@ -4,7 +4,7 @@ import json
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt # 用于允许外部POST请求
 from .models import AssessmentResult
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirtect
 
 
 def index_view(request):
