@@ -35,6 +35,6 @@ urlpatterns = [
     path('game5/',api.views.game5_view,name='game5'),
     path('game6/',api.views.game6_view,name='game6'),
     path('game7/',api.views.game7_view,name='game7'),
-    path('game8/',api.views.game8_view,name='game8'),
+    path('game')
     path('result/',api.views.result_view,name='result')
 ]

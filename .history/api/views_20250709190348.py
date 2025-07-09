@@ -92,7 +92,7 @@ def game7_view(request):
     context = {
         'game_id': 7,
         'result_id': result_id,
-        'next_game_url': '/game8/' # ✅ 将“下一题”的URL传递给模板
+        'next_game_url': '/gam/' # ✅ 将“下一题”的URL传递给模板
     }
     return render(request, 'game7.html',context)
 def game8_view(request):
