@@ -14,34 +14,7 @@
         button:hover { background-color: #2563eb; }
         button:disabled { background-color: #9ca3af; cursor: not-allowed; }
         #result { margin-top: 20px; font-size: 1.2rem; font-weight: bold; }
-        /* ✅ 新增1: “通知吐司”的样式 */
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 15px 25px;
-            border-radius: 8px;
-            color: rgb(0, 0, 0);
-            font-size: 1.1rem;
-            font-weight: 500;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 2000;
-            display: none; /* 初始隐藏 */
-            opacity: 0;
-            transition: opacity 0.5s, top 0.5s;
-        }
-        .toast-notification.show {
-            display: block;
-            top: 40px;
-            opacity: 1;
-        }
-        .toast-notification.success {
-            background-color: #28a745; /* 成功绿色 */
-        }
-        .toast-notification.error {
-            background-color: #dc3545; /* 失败红色 */
-        }
+
         /* ✅ 新增1: “下一题”按钮的容器样式 */
         .next-button-container {
             position: fixed; /* 固定在窗口右下角 */
@@ -68,7 +41,7 @@
 </head>
 
 <body data-result-id="{{ result_id }}">
-     <div id="toast" class="toast-notification"></div>
+
     <h1>日期判断</h1>
     <p>请输入今天的日期</p>
     <div class="date-selectors">
@@ -95,19 +68,6 @@
         const currentResultId = $('body').data('result-id');
         console.log("成功从HTML中读取到ID:", currentResultId);
 
-        function showNotification(message, type) {
-            const $toast = $('#toast');
-            // 设置消息和样式 (success 或 error)
-            $toast.text(message).removeClass('success error').addClass(type);
-            
-            // 显示并触发CSS动画
-            $toast.addClass('show');
-
-            // 3秒后自动隐藏
-            setTimeout(function() {
-                $toast.removeClass('show');
-            }, 3000);
-        }
         function updateResult(resultId, dataToUpdate) {
             if (!resultId) { console.error("ID不存在!"); return; }
             $.ajax({
@@ -117,18 +77,19 @@
                 data: JSON.stringify(dataToUpdate),
                 success: function(response) {
                     console.log('更新成功!', response);
-                    showNotification('分数已成功提交！', 'success');
+
+                    
                     // ✅ 新增3: AJAX请求成功后，显示“下一题”按钮
                     $('.next-button-container').show();
                     $('#checkDateBtn').prop('disabled', true); // 禁用“确认日期”按钮
                 },
                 error: function(error) {
                     console.error('更新失败:', error);
-                    showNotification('提交失败，请稍后再试。', 'error');
+
                 }
             });
         }
-        
+
         // --- initializeSelectors 和 checkDate 函数保持不变 ---
         function initializeSelectors() {
             const yearSelect = $('#yearSelect'), monthSelect = $('#monthSelect'), daySelect = $('#daySelect');

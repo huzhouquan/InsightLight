@@ -6,6 +6,33 @@
     <title>迷宫挑战</title>
     <style>
         /* 您的原有CSS样式保持不变... */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: rgb(0, 0, 0);
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none; /* 初始隐藏 */
+            opacity: 0;
+            transition: opacity 0.5s, top 0.5s;
+        }
+        .toast-notification.show {
+            display: block;
+            top: 40px;
+            opacity: 1;
+        }
+        .toast-notification.success {
+            background-color: #28a745; /* 成功绿色 */
+        }
+        .toast-notification.error {
+            background-color: #dc3545; /* 失败红色 */
+        }
         body { margin: 0; font-family: "Segoe UI", sans-serif; background: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { width: 1000px; max-width: 95%; background-color: #ffffffcc; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); padding: 30px; }
         h1 { font-size: 2.5rem; color: #4a69bd; text-align: center; margin-bottom: 20px; }
@@ -45,7 +72,7 @@
     </style>
 </head>
 <body data-result-id="{{ result_id }}">
-
+<div id="toast" class="toast-notification"></div>
     <div class="container">
         <h1>迷宫挑战</h1>
         <div class="game-layout">
@@ -117,7 +144,7 @@
             const score = calculateScore(elapsedSeconds);
             const currentResultId = $('body').data('result-id');
             updateResult(currentResultId, { "visuospatial": score });
-            alert(`恭喜通关！用时: ${$('#timer').text()}, 得分: ${score}`);
+            // alert(`恭喜通关！用时: ${$('#timer').text()}, 得分: ${score}`);
             // 禁用所有游戏内按钮
             $('#startBtn').prop('disabled', true);
             $('#resetBtn').prop('disabled', true);
@@ -138,7 +165,19 @@
             return Math.round(100 - (100 / (600 - 35)) * (elapsedSeconds - 35));
         }
 
-        // ✅ 修改4: 在 updateResult 的 success 回调中显示按钮
+        function showNotification(message, type) {
+            const $toast = $('#toast');
+            // 设置消息和样式 (success 或 error)
+            $toast.text(message).removeClass('success error').addClass(type);
+            
+            // 显示并触发CSS动画
+            $toast.addClass('show');
+
+            // 3秒后自动隐藏
+            setTimeout(function() {
+                $toast.removeClass('show');
+            }, 3000);
+        }
         function updateResult(resultId, dataToUpdate) {
             if (!resultId) { console.error("ID不存在!"); return; }
             $.ajax({
@@ -146,15 +185,16 @@
                 type: 'PATCH',
                 contentType: 'application/json',
                 data: JSON.stringify(dataToUpdate),
-                success: (response) => {
+                success: function(response) {
                     console.log('更新成功!', response);
-                    // alert('分数已成功提交！'); // 这个alert可以和通关alert合并
-                    $('.next-button-container').show(); // 显示“下一题”按钮
-                },
-                error: (error) => {
-                    console.error('更新失败:', error);
-                    // 即使提交失败，也显示按钮，让用户可以继续
+                    showNotification('分数已成功提交！', 'success');
+                    // ✅ 新增3: AJAX请求成功后，显示“下一题”按钮
                     $('.next-button-container').show();
+                    $('#checkDateBtn').prop('disabled', true); // 禁用“确认日期”按钮
+                },
+                error: function(error) {
+                    console.error('更新失败:', error);
+                    showNotification('提交失败，请稍后再试。', 'error');
                 }
             });
         }

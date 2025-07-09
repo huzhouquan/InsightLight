@@ -22,7 +22,7 @@
             transform: translateX(-50%);
             padding: 15px 25px;
             border-radius: 8px;
-            color: rgb(0, 0, 0);
+            color: white;
             font-size: 1.1rem;
             font-weight: 500;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -32,7 +32,6 @@
             transition: opacity 0.5s, top 0.5s;
         }
         .toast-notification.show {
-            display: block;
             top: 40px;
             opacity: 1;
         }
@@ -94,8 +93,7 @@
     $(document).ready(function() {
         const currentResultId = $('body').data('result-id');
         console.log("成功从HTML中读取到ID:", currentResultId);
-
-        function showNotification(message, type) {
+         function showNotification(message, type) {
             const $toast = $('#toast');
             // 设置消息和样式 (success 或 error)
             $toast.text(message).removeClass('success error').addClass(type);

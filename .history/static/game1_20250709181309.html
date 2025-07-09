@@ -32,7 +32,6 @@
             transition: opacity 0.5s, top 0.5s;
         }
         .toast-notification.show {
-            display: block;
             top: 40px;
             opacity: 1;
         }
@@ -94,7 +93,6 @@
     $(document).ready(function() {
         const currentResultId = $('body').data('result-id');
         console.log("成功从HTML中读取到ID:", currentResultId);
-
         function showNotification(message, type) {
             const $toast = $('#toast');
             // 设置消息和样式 (success 或 error)

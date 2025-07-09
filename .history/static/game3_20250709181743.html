@@ -144,7 +144,7 @@
             const score = calculateScore(elapsedSeconds);
             const currentResultId = $('body').data('result-id');
             updateResult(currentResultId, { "visuospatial": score });
-            // alert(`恭喜通关！用时: ${$('#timer').text()}, 得分: ${score}`);
+            alert(`恭喜通关！用时: ${$('#timer').text()}, 得分: ${score}`);
             // 禁用所有游戏内按钮
             $('#startBtn').prop('disabled', true);
             $('#resetBtn').prop('disabled', true);

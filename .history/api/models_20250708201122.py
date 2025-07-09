@@ -12,7 +12,7 @@ class AssessmentResult(models.Model):
     naming = models.FloatField(default=0, verbose_name="命名")
     memory = models.FloatField(default=0, verbose_name="记忆")
     attention = models.FloatField(default=0, verbose_name="注意")
-    language = models.FloatField(default=88, verbose_name="语言")
+    language = models.FloatField(default=0, verbose_name="语言")
     abstraction = models.FloatField(default=0, verbose_name="抽象")
     delayed_recall = models.FloatField(default=0, verbose_name="延迟回忆")
     orientation = models.FloatField(default=0, verbose_name="定向能力")

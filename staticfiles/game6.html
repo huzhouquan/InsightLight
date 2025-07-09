@@ -6,6 +6,33 @@
     <title>选词填空</title>
     <style>
         /* 您的原有CSS样式保持不变... */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: rgb(0, 0, 0);
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none; /* 初始隐藏 */
+            opacity: 0;
+            transition: opacity 0.5s, top 0.5s;
+        }
+        .toast-notification.show {
+            display: block;
+            top: 40px;
+            opacity: 1;
+        }
+        .toast-notification.success {
+            background-color: #28a745; /* 成功绿色 */
+        }
+        .toast-notification.error {
+            background-color: #dc3545; /* 失败红色 */
+        }
         body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; padding-top: 40px; text-align: center; }
         h1 { font-size: 2.5rem; color: #2c3e50; margin-bottom: 30px; }
         .game-container { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; max-width: 1100px; width: 90%; margin: 40px auto; }
@@ -41,7 +68,7 @@
     </style>
 </head>
 <body data-result-id="{{ result_id }}">
-
+<div id="toast" class="toast-notification"></div>
     <h1>选词填空</h1>
     <div class="game-container" id="gameContainer"></div>
     <button id="submitBtn">提交答案</button>
@@ -109,12 +136,21 @@
         }
 
         // ✅ 修改3: 在 updateResult 的 success 回调中显示按钮
+        function showNotification(message, type) {
+            const $toast = $('#toast');
+            // 设置消息和样式 (success 或 error)
+            $toast.text(message).removeClass('success error').addClass(type);
+            
+            // 显示并触发CSS动画
+            $toast.addClass('show');
+
+            // 3秒后自动隐藏
+            setTimeout(function() {
+                $toast.removeClass('show');
+            }, 3000);
+        }
         function updateResult(resultId, dataToUpdate) {
-            if (!resultId) {
-                console.error("错误: resultId 为空，无法发送更新请求！");
-                alert("页面初始化错误，请返回重试。");
-                return;
-            }
+            if (!resultId) { console.error("ID不存在!"); return; }
             $.ajax({
                 url: `/api/results/${resultId}/`,
                 type: 'PATCH',
@@ -122,17 +158,14 @@
                 data: JSON.stringify(dataToUpdate),
                 success: function(response) {
                     console.log('更新成功!', response);
-                    alert('分数已成功提交！');
-                    $('#submitBtn').prop('disabled', true); // 成功后禁用按钮
-                    
-                    // 将“下一题”按钮显示出来
+                    showNotification('分数已成功提交！', 'success');
+                    // ✅ 新增3: AJAX请求成功后，显示“下一题”按钮
                     $('.next-button-container').show();
+                    $('#checkDateBtn').prop('disabled', true); // 禁用“确认日期”按钮
                 },
                 error: function(error) {
                     console.error('更新失败:', error);
-                    alert('提交失败，请打开F12开发者工具查看控制台和网络详情。');
-                    // 即使提交失败，也显示按钮，让用户可以继续
-                    $('.next-button-container').show();
+                    showNotification('提交失败，请稍后再试。', 'error');
                 }
             });
         }
