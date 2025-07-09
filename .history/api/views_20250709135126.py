@@ -86,7 +86,7 @@ def result_view(request):
     context = {
         'result_id': result_id # 将我们从session中取出的ID传递给模板
     }
-    return render(request, 'result.html',context)
+    return render(request, 'result.html')
 @csrf_exempt # 注意：这在开发中很方便，但在生产环境中需要更安全的认证方式
 def result_list_create(request):
     """

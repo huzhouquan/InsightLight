@@ -2,9 +2,9 @@
 {% load static %}
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>选词填空</title>
-  <style>
+    <meta charset="UTF-8">
+    <title>选词填空</title>
+    <style>
     /* 基本样式 */
     body {
       margin: 0;
@@ -91,173 +91,124 @@
     }
   </style>
 </head>
-<body>
+<body data-result-id="{{ result_id }}">
 
-  <h1>选词填空</h1>
+    <h1>选词填空</h1>
 
-  <div class="game-container" id="gameContainer"></div>
+    <div class="game-container" id="gameContainer">
+        </div>
 
-  <button onclick="checkAnswers()">提交答案</button>
+    <button id="submitBtn">提交答案</button>
 
-  <div class="result" id="result"></div>
+    <div class="result" id="result"></div>
 
-  <script>
-    // 题目数据：图片路径、正确选项和其他干扰项
-    const questions = [
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc494ac78c.webp",
-        correct: "一只猫在沙发上睡觉",
-        options: ["一只狗在跑步", "一个小孩在玩耍", "一只猫在沙发上睡觉", "一辆车在路上行驶"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc483254ce.webp",
-        correct: "两个孩子在公园玩",
-        options: ["两个孩子在公园玩", "一个人在做饭", "一位老人在散步", "一只鸟在飞翔"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc48292c4c.webp",
-        correct: "海滩上有椰子树",
-        options: ["山上有一座寺庙", "城市中有高楼大厦", "海滩上有椰子树", "森林里有小鹿"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc49496bcd.webp",
-        correct: "阳台上种花",
-        options: ["卧室里有人睡觉", "厨房里有人在做饭", "客厅里看电视", "阳台上种花"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc494d97c6.webp",
-        correct: "一辆红色汽车停在路边",
-        options: ["一辆蓝色自行车", "一辆红色汽车停在路边", "一列火车穿过隧道", "一架飞机在飞行"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc4941d228.webp",
-        correct: "一群鸟在天空中飞",
-        options: ["一只鸡在觅食", "一群鸟在天空中飞", "一只鸽子站在树枝上", "一只燕子筑巢"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc4837c0af.webp",
-        correct: "人们在超市购物",
-        options: ["人们在电影院看电影", "人们在健身房锻炼", "人们在超市购物", "孩子们在学校上课"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc482945c3.webp",
-        correct: "花园里开满了花",
-        options: ["花园里开满了花", "草地上有小朋友踢球", "湖边有人钓鱼", "山坡上放羊"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc4839c732.webp",
-        correct: "麻将馆里打牌",
-        options: ["图书馆里安静看书", "饭店里面吃饭", "教室里老师讲课", "麻将馆里打牌"]
-      },
-      {
-        image: "https://img.picui.cn/free/2025/07/09/686dc49530f5b.webp",
-        correct: "夜晚的城市灯光",
-        options: ["白天的乡村风景", "夜晚的城市灯光", "雨中的街道", "清晨的雾景"]
-      }
-    ];
-
-
-    var id="4f030b95-fed7-4093-bfec-f70e6cc10d8f"//id
-    var score
-
-
-    // 页面加载时随机选择3道题目并渲染
-    window.onload = function() {
-      const selectedQuestions = getRandomQuestions(questions, 3);
-      renderQuestions(selectedQuestions);
-    };
-
-    // 从题库中随机选取指定数量的题目
-    function getRandomQuestions(arr, num) {
-      const shuffled = [...arr].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, num);
-    }
-
-    // 渲染题目到页面
-    function renderQuestions(questionsArray) {
-      const container = document.getElementById('gameContainer');
-      container.innerHTML = '';
-
-      questionsArray.forEach((q, index) => {
-        const card = document.createElement('div');
-        card.className = 'question-card';
-
-        const img = document.createElement('img');
-        img.src = q.image;
-
-        const select = document.createElement('select');
-        select.id = `select-${index}`;
-        
-        // 创建默认选项
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = '请选择正确描述';
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        defaultOption.hidden = true;
-        select.appendChild(defaultOption);
-
-        // 打乱选项顺序
-        const shuffledOptions = [...q.options].sort(() => 0.5 - Math.random());
-
-        // 添加所有选项
-        shuffledOptions.forEach(optionText => {
-          const option = document.createElement('option');
-          option.value = optionText;
-          option.textContent = optionText;
-          select.appendChild(option);
-        });
-
-        card.appendChild(img);
-        card.appendChild(select);
-        container.appendChild(card);
-      });
-    }
-
-    // 检查用户答案并显示得分
-    function checkAnswers() {
-      const selectedElements = document.querySelectorAll('[id^="select-"]');
-      let score = 0;
-      let total = selectedElements.length;
-
-      selectedElements.forEach((select, index) => {
-        const userAnswer = select.value;
-        const question = questions.find(q => q.correct === userAnswer);
-
-        if (question && question.correct === userAnswer) {
-          score++;
-        }
-      });
-
-      const resultDiv = document.getElementById('result');
-      resultDiv.textContent = `你答对了 ${score} 道题，共 ${total} 道题。`;
-      updateResult(id, {"naming": (score/total)});
-    }
-
+    <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
     
+    <script>
+    // ✅ 修正1: 将所有JS代码都包裹在一个 $(document).ready() 中
+    $(document).ready(function() {
 
+        // --- 状态变量和题库 ---
+        const currentResultId = $('body').data('result-id');
+        console.log("成功从HTML中读取到ID:", currentResultId);
 
-    //函数
-    
-    function updateResult(resultId, dataToUpdate) {
-    // 示例:
-    // const resultId = 'a1b2c3d4-e5f6-...';
-    // const dataToUpdate = { memory: 99, attention: 90 };
+        // 题目数据
+        const questions = [
+            { image: "https://img.picui.cn/free/2025/07/09/686dc494ac78c.webp", correct: "一只猫在沙发上睡觉", options: ["一只狗在跑步", "一个小孩在玩耍", "一只猫在沙发上睡觉", "一辆车在路上行驶"] },
+            { image: "https://img.picui.cn/free/2025/07/09/686dc483254ce.webp", correct: "两个孩子在公园玩", options: ["两个孩子在公园玩", "一个人在做饭", "一位老人在散步", "一只鸟在飞翔"] },
+            { image: "https://img.picui.cn/free/2025/07/09/686dc48292c4c.webp", correct: "海滩上有椰子树", options: ["山上有一座寺庙", "城市中有高楼大厦", "海滩上有椰子树", "森林里有小鹿"] }
+            // 你可以保留所有10道题，这里为了简洁只留3道
+        ];
 
-    $.ajax({
-        url: `http://127.0.0.1:8000/api/results/${resultId}/`, // URL中包含ID
-        type: 'PATCH', // 使用 PATCH 方法进行部分更新
-        contentType: 'application/json',
-        data: JSON.stringify(dataToUpdate),
-        success: function(response) {
-            console.log('更新成功!', response);
-            alert('结果更新成功！');
-        },
-        error: function(error) {
-            console.error('更新失败:', error);
+        // --- 核心函数 ---
+
+        // 从题库中随机选取指定数量的题目
+        function getRandomQuestions(arr, num) {
+            const shuffled = [...arr].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, num);
         }
+
+        // 渲染题目到页面
+        function renderQuestions(questionsArray) {
+            const container = $('#gameContainer');
+            container.html(''); // 使用jQuery清空
+
+            questionsArray.forEach((q, index) => {
+                // 为每个下拉菜单关联它的正确答案
+                const card = `
+                    <div class="question-card">
+                        <img src="${q.image}">
+                        <select id="select-${index}" data-correct-answer="${q.correct}">
+                            <option value="" disabled selected hidden>请选择正确描述</option>
+                        </select>
+                    </div>
+                `;
+                container.append(card);
+
+                const select = $(`#select-${index}`);
+                const shuffledOptions = [...q.options].sort(() => 0.5 - Math.random());
+                shuffledOptions.forEach(optionText => {
+                    select.append(`<option value="${optionText}">${optionText}</option>`);
+                });
+            });
+        }
+
+        // ✅ 修正2: 答案检查逻辑
+        function checkAnswers() {
+            let score = 0;
+            const selects = $('#gameContainer select');
+            const total = selects.length;
+
+            selects.each(function() {
+                const userAnswer = $(this).val(); // 获取用户选择的值
+                const correctAnswer = $(this).data('correct-answer'); // 获取存储的正确答案
+
+                if (userAnswer === correctAnswer) {
+                    score++;
+                }
+            });
+
+            // ✅ 修正3: 将分数转换为百分制
+            const finalScore = Math.round((score / total) * 100);
+
+            $('#result').text(`你答对了 ${score} 道题，共 ${total} 道题。得分: ${finalScore}`);
+            
+            // 使用从页面读取的ID来更新后端数据
+            updateResult(currentResultId, { "naming": finalScore });
+        }
+
+        // 更新后端的AJAX函数
+        function updateResult(resultId, dataToUpdate) {
+            if (!resultId) {
+                console.error("错误: resultId 为空，无法发送更新请求！");
+                alert("页面初始化错误，请返回重试。");
+                return;
+            }
+            $.ajax({
+                url: `/api/results/${resultId}/`,
+                type: 'PATCH',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToUpdate),
+                success: function(response) {
+                    console.log('更新成功!', response);
+                    alert('分数已成功提交！');
+                },
+                error: function(error) {
+                    console.error('更新失败:', error);
+                    alert('提交失败，请查看控制台获取详情。');
+                }
+            });
+        }
+
+        // --- 初始化和事件绑定 ---
+
+        // 使用jQuery的方式来绑定点击事件
+        $('#submitBtn').on('click', checkAnswers);
+
+        // 页面加载时随机选择3道题目并渲染
+        const selectedQuestions = getRandomQuestions(questions, 3);
+        renderQuestions(selectedQuestions);
     });
-}
-  </script>
+    </script>
 </body>
 </html>
