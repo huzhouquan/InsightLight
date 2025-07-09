@@ -1,448 +1,241 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>迷宫小游戏</title>
+    <title>迷宫挑战</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: "Segoe UI", "Helvetica Neue", "Microsoft YaHei", sans-serif;
-            background: linear-gradient(135deg, #e0c3fc 0%, #9bb5ff 100%);
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            width: 1000px;
-            max-width: 95%;
-            background-color: #ffffffcc;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            color: #4a69bd;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 1px 1px 2px #ccc;
-        }
-
-        .news-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .news-list-left {
-            flex: 3;
-            min-width: 300px;
-        }
-
-        .news-list-right {
-            flex: 1;
-            min-width: 200px;
-            background-color: #f0f4ff;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
-        }
-
-        canvas {
-            display: block;
-            margin: 0 auto;
-            border: 3px solid #9bb5ff;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-
-        button {
-            cursor: pointer;
-            width: 100%;
-            height: 44px;
-            margin-top: 15px;
-            background: #6a89cc;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        button:hover {
-            background: #4a69bd;
-            transform: translateY(-2px);
-        }
-
-        .about h4 {
-            color: #4a69bd;
-            margin-bottom: 10px;
-        }
-
-        #mytime {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-            display: block;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .copyright {
-            text-align: center;
-            color: #888;
-            margin-top: 30px;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .news-list {
-                flex-direction: column;
-            }
-
-            canvas {
-                width: 100%;
-                height: auto;
-            }
-        }
+        body { margin: 0; font-family: "Segoe UI", sans-serif; background: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 1000px; max-width: 95%; background-color: #ffffffcc; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); padding: 30px; }
+        h1 { font-size: 2.5rem; color: #4a69bd; text-align: center; margin-bottom: 20px; }
+        .game-layout { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+        .maze-panel { flex: 3; min-width: 421px; } /* 固定宽度以匹配canvas */
+        .controls-panel { flex: 1; min-width: 200px; background-color: #f0f4ff; padding: 20px; border-radius: 15px; }
+        canvas { display: block; margin: 0 auto; border: 2px solid #9bb5ff; border-radius: 10px; background-color: #fff; cursor: pointer; }
+        button { cursor: pointer; width: 100%; height: 44px; margin-top: 15px; background: #6a89cc; color: white; border: none; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; }
+        button:hover { background: #4a69bd; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #timer { font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 15px; color: #333; }
+        .instructions h4 { color: #4a69bd; margin-bottom: 10px; }
+        .instructions p { font-size: 0.9rem; color: #555; line-height: 1.6; }
     </style>
 </head>
 <body data-result-id="{{ result_id }}">
+
     <div class="container">
-        <h1>迷宫小游戏</h1>
-        <div class="news-list">
-            <div class="news-list-left">
-                <canvas id="mycanvas" width="600" height="600"></canvas>
+        <h1>迷宫挑战</h1>
+        <div class="game-layout">
+            <div class="maze-panel">
+                <canvas id="mazeCanvas"></canvas>
             </div>
-            <div class="news-list-right">
-                <div class="about">
-                    <h4>游戏信息</h4>
-                    <span id="mytime">00时00分00秒</span>
-                    <button onclick="start()">开始游戏并计时</button>
-                    <button onclick="renovates()">重新开始</button>
+            <div class="controls-panel">
+                <div class="instructions">
+                    <h4>游戏说明</h4>
+                    <p>• 使用键盘的 **↑ ↓ ← →** 方向键移动蓝色方块。<br>• 或者，直接点击蓝色方块周围的相邻格子进行移动。<br>• 目标是到达右下角的绿色终点。</p>
                 </div>
+                <h4>游戏信息</h4>
+                <div id="timer">00:00</div>
+                <button id="startBtn">开始游戏</button>
+                <button id="resetBtn">重新生成迷宫</button>
             </div>
         </div>
-        <footer class="copyright">
-            Copyright © 2021
-        </footer>
     </div>
 
     <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
-    
     <script>
-       // ✅ 修正2: 将所有JS代码都包裹在 $(document).ready() 中
     $(document).ready(function() {
 
-        // --- 状态变量 ---
-        const currentResultId = $('body').data('result-id');
-        console.log("成功从HTML中读取到ID:", currentResultId);
+        // --- 1. 游戏设置与状态管理 ---
+        const canvas = $('#mazeCanvas')[0];
+        const ctx = canvas.getContext('2d');
+        const gridSize = 14;
+        const cellSize = 30;
+        canvas.width = canvas.height = gridSize * cellSize;
 
-        // --- 函数定义 ---
+        let gameState = {};
 
+        // --- 2. 核心函数 ---
+
+        // 初始化/重置游戏
+        function initGame() {
+            // 使用一个清晰的对象来统一管理游戏状态
+            gameState = {
+                maze: generateMazeData(), // 生成迷宫数据
+                player: { x: 0, y: 0 },
+                exit: { x: gridSize - 1, y: gridSize - 1 },
+                isGameActive: false,
+                startTime: 0,
+                timerInterval: null
+            };
+            stopTimer(); // 确保计时器停止
+            $('#timer').text('00:00');
+            $('#startBtn').prop('disabled', false).text('开始游戏');
+            draw(); // 绘制初始游戏画面
+        }
+
+        // 开始游戏
+        function startGame() {
+            if (gameState.isGameActive) return;
+            gameState.isGameActive = true;
+            gameState.startTime = Date.now();
+            gameState.timerInterval = setInterval(updateTimer, 1000);
+            $('#startBtn').prop('disabled', true).text('游戏中...');
+        }
+        
+        // 游戏结束处理
+        function finishGame() {
+            gameState.isGameActive = false;
+            stopTimer();
+            const elapsedSeconds = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const score = calculateScore(elapsedSeconds);
+            const currentResultId = $('body').data('result-id');
+            updateResult(currentResultId, { "visuospatial": score });
+            alert(`恭喜通关！用时: ${$('#timer').text()}, 得分: ${score}`);
+        }
+
+        // 更新计时器
+        function updateTimer() {
+            const elapsedSeconds = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
+            const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
+            $('#timer').text(`${minutes}:${seconds}`);
+        }
+        
+        function stopTimer() {
+            clearInterval(gameState.timerInterval);
+        }
+        
+        // 计算分数
+        function calculateScore(elapsedSeconds) {
+            if (elapsedSeconds <= 35) return 100;
+            if (elapsedSeconds >= 600) return 0;
+            // 在35秒到600秒之间线性递减
+            return Math.round(100 - (100 / (600 - 35)) * (elapsedSeconds - 35));
+        }
+
+        // AJAX 更新函数
         function updateResult(resultId, dataToUpdate) {
-            // 检查ID是否存在，防止发送错误的请求
-            if (!resultId) {
-                console.error("错误: resultId 为空，无法发送更新请求！");
-                alert("页面初始化错误，请返回重试。");
-                return;
-            }
+            if (!resultId) { console.error("ID不存在!"); return; }
             $.ajax({
-                url: `/api/results/${resultId}/`, // 使用相对路径更佳
+                url: `/api/results/${resultId}/`,
                 type: 'PATCH',
                 contentType: 'application/json',
                 data: JSON.stringify(dataToUpdate),
-                success: function(response) {
-                    console.log('更新成功!', response);
-                    alert('分数已成功提交！');
-                },
-                error: function(error) {
-                    console.error('更新失败:', error);
-                    alert('提交失败，请查看控制台获取详情。');
-                }
+                success: (response) => console.log('更新成功!', response),
+                error: (error) => console.error('更新失败:', error)
             });
         }
-    
-        var aa = 14;
-        var chess = document.getElementById("mycanvas");
-        var context = chess.getContext('2d');
-        var isMoving = false;
-        var moveSpeed = 5;
-        var moveDirection = { x: 0, y: 0 };
+        
+        // --- 3. 迷宫生成与绘制 ---
+        function generateMazeData() {
+            const maze = Array(gridSize).fill(0).map(() => Array(gridSize).fill(0).map(() => 
+                ({ top: true, right: true, bottom: true, left: true, visited: false })
+            ));
+            let stack = [{ x: 0, y: 0 }];
+            maze[0][0].visited = true;
+            while (stack.length > 0) {
+                let current = stack[stack.length - 1];
+                let neighbors = [];
+                const { x, y } = current;
+                if (y > 0 && !maze[y - 1][x].visited) neighbors.push({ x, y: y - 1, wall: 'top', opposite: 'bottom' });
+                if (x < gridSize - 1 && !maze[y][x + 1].visited) neighbors.push({ x: x + 1, y, wall: 'right', opposite: 'left' });
+                if (y < gridSize - 1 && !maze[y + 1][x].visited) neighbors.push({ x, y: y + 1, wall: 'bottom', opposite: 'top' });
+                if (x > 0 && !maze[y][x - 1].visited) neighbors.push({ x: x - 1, y, wall: 'left', opposite: 'right' });
 
-        var tree = [];
-        var isling = [];
-        for (var i = 0; i < aa; i++) {
-            tree[i] = [];
-            for (var j = 0; j < aa; j++) {
-                tree[i][j] = -1;
-            }
-        }
-        for (var i = 0; i < aa * aa; i++) {
-            isling[i] = [];
-            for (var j = 0; j < aa * aa; j++) {
-                isling[i][j] = -1;
-            }
-        }
-
-        function drawChessBoard() {
-            for (var i = 0; i < aa + 1; i++) {
-                context.strokeStyle = '#ccc';
-                context.moveTo(15 + i * 30, 15);
-                context.lineTo(15 + i * 30, 15 + 30 * aa);
-                context.stroke();
-                context.moveTo(15, 15 + i * 30);
-                context.lineTo(15 + 30 * aa, 15 + i * 30);
-                context.stroke();
-            }
-        }
-        drawChessBoard();
-
-        function getnei(a) {
-            var x = parseInt(a / aa);
-            var y = a % aa;
-            var myneibor = [];
-            if (x - 1 >= 0) { myneibor.push((x - 1) * aa + y); }
-            if (x + 1 < 14) { myneibor.push((x + 1) * aa + y); }
-            if (y + 1 < 14) { myneibor.push(x * aa + y + 1); }
-            if (y - 1 >= 0) { myneibor.push(x * aa + y - 1); }
-            var ran = parseInt(Math.random() * myneibor.length);
-            return myneibor[ran];
-        }
-
-        function search(a) {
-            if (tree[parseInt(a / aa)][a % aa] > 0) {
-                return search(tree[parseInt(a / aa)][a % aa]);
-            } else {
-                return a;
-            }
-        }
-
-        function union(a, b) {
-            var a1 = search(a);
-            var b1 = search(b);
-            if (a1 != b1) {
-                if (tree[parseInt(a1 / aa)][a1 % aa] < tree[parseInt(b1 / aa)][b1 % aa]) {
-                    tree[parseInt(a1 / aa)][a1 % aa] += tree[parseInt(b1 / aa)][b1 % aa];
-                    tree[parseInt(b1 / aa)][b1 % aa] = a1;
+                if (neighbors.length > 0) {
+                    let next = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    maze[y][x][next.wall] = false;
+                    maze[next.y][next.x][next.opposite] = false;
+                    maze[next.y][next.x].visited = true;
+                    stack.push(next);
                 } else {
-                    tree[parseInt(b1 / aa)][b1 % aa] += tree[parseInt(a1 / aa)][a1 % aa];
-                    tree[parseInt(a1 / aa)][a1 % aa] = b1;
+                    stack.pop();
+                }
+            }
+            return maze;
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // 绘制墙
+            ctx.strokeStyle = '#6a89cc';
+            ctx.lineWidth = 2;
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const cell = gameState.maze[y][x];
+                    if (cell.top) { ctx.beginPath(); ctx.moveTo(x * cellSize, y * cellSize); ctx.lineTo((x + 1) * cellSize, y * cellSize); ctx.stroke(); }
+                    if (cell.right) { ctx.beginPath(); ctx.moveTo((x + 1) * cellSize, y * cellSize); ctx.lineTo((x + 1) * cellSize, (y + 1) * cellSize); ctx.stroke(); }
+                    if (cell.bottom) { ctx.beginPath(); ctx.moveTo((x + 1) * cellSize, (y + 1) * cellSize); ctx.lineTo(x * cellSize, (y + 1) * cellSize); ctx.stroke(); }
+                    if (cell.left) { ctx.beginPath(); ctx.moveTo(x * cellSize, (y + 1) * cellSize); ctx.lineTo(x * cellSize, y * cellSize); ctx.stroke(); }
+                }
+            }
+            // 绘制终点和玩家
+            ctx.fillStyle = 'lightgreen';
+            ctx.fillRect(gameState.exit.x * cellSize + 2, gameState.exit.y * cellSize + 2, cellSize - 4, cellSize - 4);
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(gameState.player.x * cellSize + 2, gameState.player.y * cellSize + 2, cellSize - 4, cellSize - 4);
+        }
+        
+        // --- 4. 玩家控制 ---
+        
+        function movePlayer(dx, dy) {
+            if (!gameState.isGameActive) return;
+
+            let { x, y } = gameState.player;
+            const currentCell = gameState.maze[y][x];
+            let canMove = false;
+
+            if (dx === 1 && !currentCell.right) canMove = true;
+            else if (dx === -1 && !currentCell.left) canMove = true;
+            else if (dy === 1 && !currentCell.bottom) canMove = true;
+            else if (dy === -1 && !currentCell.top) canMove = true;
+
+            if (canMove) {
+                gameState.player.x += dx;
+                gameState.player.y += dy;
+                draw(); // 移动后重绘
+                if (gameState.player.x === gameState.exit.x && gameState.player.y === gameState.exit.y) {
+                    finishGame();
                 }
             }
         }
 
-        function drawline(a, b) {
-            var x1 = parseInt(a / aa);
-            var y1 = a % aa;
-            var x2 = parseInt(b / aa);
-            var y2 = b % aa;
-            var x3 = (x1 + x2) / 2;
-            var y3 = (y1 + y2) / 2;
-            if (x1 - x2 == 1 || x1 - x2 == -1) {
-                context.clearRect(29 + x3 * 30, y3 * 30 + 16, 2, 28);
-            } else {
-                context.clearRect(x3 * 30 + 16, 29 + y3 * 30, 28, 2);
+        // ✅ 新的、更流畅的键盘控制
+        function handleKeyDown(e) {
+            switch (e.key) {
+                case 'ArrowUp': movePlayer(0, -1); break;
+                case 'ArrowDown': movePlayer(0, 1); break;
+                case 'ArrowLeft': movePlayer(-1, 0); break;
+                case 'ArrowRight': movePlayer(1, 0); break;
             }
         }
-
-        while (search(0) != search(aa * aa - 1)) {
-            var num = parseInt(Math.random() * aa * aa);
-            var neihbour = getnei(num);
-            if (search(num) == search(neihbour)) { continue; }
-            isling[num][neihbour] = 1; isling[neihbour][num] = 1;
-            drawline(num, neihbour);
-            union(num, neihbour);
-        }
-
-        var a = aa * 30 - 10, b = aa * 30 - 10;
-        var x = 20, y = 20;
-
-        function load() {
-            var canvas = document.getElementById("mycanvas");
-            Context = canvas.getContext("2d");
-            Context.fillStyle = "blue";
-            Context.fillRect(x, y, 20, 20);
-            Context.fillStyle = "red";
-            Context.fillRect(a, b, 20, 20);
-        }
-        load();
-
-        function clearCanvas() {
-            Context.clearRect(x - 2, y - 2, 25, 25);
-        }
-
-        function gameover() {
-            if (x >= a && y >= b) {
-                end = true;
-            }
-        }
-
-        var gameCount = 3;
-
-        function show() {
-            if (end == true) {
-                gameCount--;
-                if (gameCount == 0) {
-                    stop();
-                    const canvas = document.getElementById("mycanvas");
-                    canvas.removeEventListener('mousemove', handleMouseMove, true);
-                    var score = parseFloat(cauculateScore().toFixed(2));
-                    const dataToUpdate = { "visuospatial": score };
-                    updateResult(currentResultId, dataToUpdate);
-                } else {
-                    end = false;
-                    Context.clearRect(0, 0, 600, 600);
-                    for (var i = 0; i < aa; i++) {
-                        tree[i] = [];
-                        for (var j = 0; j < aa; j++) {
-                            tree[i][j] = -1;
-                        }
-                    }
-                    for (var i = 0; i < aa * aa; i++) {
-                        isling[i] = [];
-                        for (var j = 0; j < aa * aa; j++) {
-                            isling[i][j] = -1;
-                        }
-                    }
-                    drawChessBoard();
-                    while (search(0) != search(aa * aa - 1)) {
-                        var num = parseInt(Math.random() * aa * aa);
-                        var neihbour = getnei(num);
-                        if (search(num) == search(neihbour)) { continue; }
-                        isling[num][neihbour] = 1; isling[neihbour][num] = 1;
-                        drawline(num, neihbour);
-                        union(num, neihbour);
-                    }
-                    a = aa * 30 - 10, b = aa * 30 - 10;
-                    x = 20, y = 20;
-                    load();
-                }
-            }
-        }
-
-        function handleMouseMove(e) {
-            if (isMoving) return;
-            const rect = chess.getBoundingClientRect();
+        
+        // ✅ 新的、更简单的鼠标点击控制
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
-            const centerX = x + 10;
-            const centerY = y + 10;
-            const dx = mouseX - centerX;
-            const dy = mouseY - centerY;
-            let newX = x;
-            let newY = y;
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0) {
-                    if (x + 30 <= 15 + 30 * aa && isling[getIndex(x, y)][getIndex(x + 30, y)] === 1) {
-                        newX = x + 30;
-                    }
-                } else {
-                    if (x - 30 >= 0 && isling[getIndex(x, y)][getIndex(x - 30, y)] === 1) {
-                        newX = x - 30;
-                    }
-                }
-            } else {
-                if (dy > 0) {
-                    if (y + 30 <= 15 + 30 * aa && isling[getIndex(x, y)][getIndex(x, y + 30)] === 1) {
-                        newY = y + 30;
-                    }
-                } else {
-                    if (y - 30 >= 0 && isling[getIndex(x, y)][getIndex(x, y - 30)] === 1) {
-                        newY = y - 30;
-                    }
-                }
-            }
-
-            var timeInternal = 150;
-
-            if (newX !== x || newY !== y) {
-                isMoving = true;
-                clearCanvas();
-                x = newX;
-                y = newY;
-                Context.fillStyle = 'blue';
-                Context.fillRect(x, y, 20, 20);
-                gameover();
-                show();
-                setTimeout(() => {
-                    isMoving = false;
-                }, timeInternal);
+            
+            const gridX = Math.floor(mouseX / cellSize);
+            const gridY = Math.floor(mouseY / cellSize);
+            
+            const dx = gridX - gameState.player.x;
+            const dy = gridY - gameState.player.y;
+            
+            // 只允许点击相邻的格子
+            if (Math.abs(dx) + Math.abs(dy) === 1) {
+                movePlayer(dx, dy);
             }
         }
 
-        function getIndex(x, y) {
-            return ((x - 20) / 30) * aa + ((y - 20) / 30);
-        }
+        // --- 5. 事件绑定与初始化 ---
+        $('#startBtn').on('click', startGame);
+        $('#resetBtn').on('click', initGame);
+        $(document).on('keydown', handleKeyDown); // 监听整个文档的键盘事件
+        $('#mazeCanvas').on('click', handleCanvasClick); // 监听Canvas的点击事件
 
-        var end = false;
-
-        var h = m = s = ms = 0;
-        var time = 0;
-        var i = 0;
-        
-
-        function timer() {
-            ms = ms + 60;
-            if (ms >= 1000) {
-                ms = 0;
-                s = s + 1;
-            }
-            if (s >= 60) {
-                s = 0;
-                m = m + 1;
-            }
-            if (m >= 60) {
-                m = 0;
-                h = h + 1;
-            }
-            str = toDub(h) + "时" + toDub(m) + "分" + toDub(s) + "秒";
-            document.getElementById('mytime').innerHTML = str;
-        }
-
-        var haveStarted = false;
-
-        function start() {
-            if (haveStarted) return;
-            haveStarted = true;
-            i = 1;
-            time = setInterval(timer, 60);
-            const canvas = document.getElementById("mycanvas");
-            canvas.addEventListener('mousemove', handleMouseMove, true);
-        }
-
-        function stop() {
-            i = 0;
-            clearInterval(time);
-        }
-
-        function renovates() {
-            document.location.reload();
-        }
-
-        function toDub(n) {
-            return n < 10 ? "0" + n : "" + n;
-        }
-
-        function cauculateScore(){
-                var time_s=h*3600+m*60+s;
-                if(time_s<=35) {return 100;}
-                else if(time_s<=600) {return 100-100/(600-35)*(time_s-35)}
-                else {return 0;}
-        }
-        });
+        initGame(); // 页面加载时初始化游戏
+    });
     </script>
 </body>
 </html>
