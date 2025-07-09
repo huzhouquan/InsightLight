@@ -104,16 +104,34 @@
   <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
     
     <script>
-    // ✅ 修正2: 将所有JS代码都包裹在 $(document).ready() 中
-    $(document).ready(function() {
+      // 检查用户答案并显示得分
+    function checkAnswers() {
+      const selectedElements = document.querySelectorAll('[id^="select-"]');
+      let score = 0;
+      let total = selectedElements.length;
 
-        // --- 状态变量 ---
-        const currentResultId = $('body').data('result-id');
-        console.log("成功从HTML中读取到ID:", currentResultId);
+      selectedElements.forEach((select, index) => {
+        const userAnswer = select.value;
+        const question = questions.find(q => q.correct === userAnswer);
 
-        // --- 函数定义 ---
+        if (question && question.correct === userAnswer) {
+          score++;
+        }
+      });
 
-        function updateResult(resultId, dataToUpdate) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = `你答对了 ${score} 道题，共 ${total} 道题。`;
+      
+      
+      
+      const dataToUpdate = {"naming": (score/total)}
+      updateResult(id, dataToUpdate);
+
+      
+    }
+
+
+    function updateResult(resultId, dataToUpdate) {
             // 检查ID是否存在，防止发送错误的请求
             if (!resultId) {
                 console.error("错误: resultId 为空，无法发送更新请求！");
@@ -135,6 +153,20 @@
                 }
             });
         }
+
+
+        
+
+    // ✅ 修正2: 将所有JS代码都包裹在 $(document).ready() 中
+    $(document).ready(function() {
+
+        // --- 状态变量 ---
+        const currentResultId = $('body').data('result-id');
+        console.log("成功从HTML中读取到ID:", currentResultId);
+
+        // --- 函数定义 ---
+
+        
 
     // 题目数据：图片路径、正确选项和其他干扰项
     const questions = [
@@ -248,32 +280,7 @@
       });
     }
 
-    // 检查用户答案并显示得分
-    function checkAnswers() {
-      const selectedElements = document.querySelectorAll('[id^="select-"]');
-      let score = 0;
-      let total = selectedElements.length;
-
-      selectedElements.forEach((select, index) => {
-        const userAnswer = select.value;
-        const question = questions.find(q => q.correct === userAnswer);
-
-        if (question && question.correct === userAnswer) {
-          score++;
-        }
-      });
-
-      const resultDiv = document.getElementById('result');
-      resultDiv.textContent = `你答对了 ${score} 道题，共 ${total} 道题。`;
-      
-      
-      
-      const dataToUpdate = {"naming": (score/total)}
-      updateResult(id, dataToUpdate);
-
-      
-    }
-
+    
     
 
 
