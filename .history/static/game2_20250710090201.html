@@ -188,7 +188,7 @@ $(document).ready(function() {
     // (updateTimer, formatTime, calculateScore, updateResult 等函数保持不变)
     function updateTimer() { const elapsed = Date.now() - gameState.startTime; timerDisplay.text(formatTime(elapsed)); }
     function formatTime(ms) { const m = Math.floor(ms / 60000).toString().padStart(2, '0'); const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0'); const ms_s = Math.floor((ms % 1000) / 10).toString().padStart(2, '0'); return `${m}:${s}.${ms_s}`; }
-    function calculateScore(s) { if (s <= 60) return 100; if (s >= 600) return 50; return Math.round(100 - ((s - 60) / 540) * 50); }
+    function calculateScore(s) { if (s <= 60) return 100; if (s >= 600) return 50; return Math.round(100 - ((s - 60) / 540) * 100); }
     function showNotification(message, type) {
             const $toast = $('#toast');
             // 设置消息和样式 (success 或 error)

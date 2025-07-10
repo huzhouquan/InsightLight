@@ -129,7 +129,7 @@
                 }
             });
 
-            const finalScore = Math.round((score / total) * 50+50);
+            const finalScore = Math.round((score / total) * 50);
             $('#result').text(`你答对了 ${score} 道题，共 ${total} 道题。得分: ${finalScore}`);
             
             updateResult(currentResultId, { "naming": finalScore });

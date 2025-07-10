@@ -167,7 +167,7 @@ $(document).ready(function() {
         if (wordCount >= 15) {
             finalScore = 100;
         } else {
-            finalScore = Math.round((wordCount / 15) * 50+50);
+            finalScore = Math.round((wordCount / 15) * 50);
         }
         return { wordCount, finalScore };
     }
