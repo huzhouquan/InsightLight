@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <title>日期判断</title>
     <style>
-        /* 您的原有CSS样式保持不变... */
+        .home-button-container { position: fixed; left: 40px; bottom: 40px; z-index: 1000; }
+        .home-button-container .btn { background-color: #10b981; padding: 12px 30px; font-size: 1.1rem; font-weight: 500; color: white; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; text-align: center; padding: 40px; }
         h1 { color: #3b82f6; margin-bottom: 20px; }
         .date-selectors { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
@@ -87,7 +88,11 @@
             <a href="{% url 'result' %}" class="btn">查看最终报表</a>
         {% endif %}
     </div>
-
+    <div class="home-button-container">
+    {% if next_game_url %}
+        <a href="{{ home_url }}" class="btn">返回主页</a>
+    {% endif %}
+</div>
     <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
     
     <script>
