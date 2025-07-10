@@ -131,8 +131,23 @@ $(document).ready(function() {
     function handleCardClick() { if (!gameState.isGameActive || gameState.flippedCards.length >= 2) return; const $card = $(this); if ($card.hasClass('flipped')) return; $card.addClass('flipped'); gameState.flippedCards.push($card); if (gameState.flippedCards.length === 2) { checkMatch(); } }
     function checkMatch() { const [$card1, $card2] = gameState.flippedCards; if ($card1.data('value') === $card2.data('value')) { $card1.addClass('matched'); $card2.addClass('matched'); gameState.matchedPairs++; gameState.flippedCards = []; if (gameState.matchedPairs === totalPairs) { finishGame(); } } else { setTimeout(() => { $card1.removeClass('flipped'); $card2.removeClass('flipped'); gameState.flippedCards = []; }, 1000); } }
     function finishGame() { gameState.isGameActive = false; const elapsedMilliseconds = Date.now() - gameState.startTime; const elapsedSeconds = elapsedMilliseconds / 1000; const finalScore = calculateScore(elapsedSeconds); $message.text(`🎉 完成！用时: ${elapsedSeconds.toFixed(2)}秒，得分: ${finalScore}`).css('color', 'green'); const currentResultId = $('body').data('result-id'); updateResult(currentResultId, { "delayed_recall": finalScore }); $startBtn.text('再玩一次').show(); }
-    function calculateScore(elapsedSeconds) { if (elapsedSeconds <= 30) { return 100; } if (elapsedSeconds >= 300) { return 0; } const score = 100 - ((elapsedSeconds - 30) / 270) * 100; return Math.round(score); }
-    
+    function calculateScore(elapsedSeconds) {
+    // 30秒以内，都是满分
+    if (elapsedSeconds <= 30) {
+        return 100;
+    }
+    // 5分钟（300秒）或以上，都是最低分50分
+    if (elapsedSeconds >= 300) {
+        return 50;
+    }
+
+    // 在30秒到300秒之间，分数从100分线性递减到50分
+    // 总时长范围 = 300 - 30 = 270秒
+    // 总分差范围 = 100 - 50 = 50分
+    const score = 100 - ((elapsedSeconds - 30) / 270) * 50;
+
+    return Math.round(score); // 返回一个整数
+}
     // ✅ 修改4: 在 updateResult 的 success 回调中显示按钮
     function showNotification(message, type) {
             const $toast = $('#toast');

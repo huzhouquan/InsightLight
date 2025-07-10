@@ -161,8 +161,8 @@
         
         function calculateScore(elapsedSeconds) {
             if (elapsedSeconds <= 35) return 100;
-            if (elapsedSeconds >= 600) return 0;
-            return Math.round(100 - (100 / (600 - 35)) * (elapsedSeconds - 35));
+            if (elapsedSeconds >= 600) return 50;
+            return Math.round(100 - (50 / (600 - 35)) * (elapsedSeconds - 35));
         }
 
         function showNotification(message, type) {
