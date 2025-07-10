@@ -87,6 +87,8 @@
 <div class="next-button-container" style="display: none;">
     {% if next_game_url %}
         <a href="{{ next_game_url }}" class="btn">查看报告</a>
+    {% else %}
+        <a href="{% url 'result' %}" class="btn">完成！查看总报告</a>
     {% endif %}
 </div>
 

@@ -42,6 +42,7 @@ def game1_view(request):
     return render(request, 'game1.html',context)
 def game2_view(request):
     result_id = request.session.get('result_id')
+
     context = {
         'game_id': 2,
         'result_id': result_id,

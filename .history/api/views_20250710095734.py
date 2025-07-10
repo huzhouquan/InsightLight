@@ -4,7 +4,7 @@ import json
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt # 用于允许外部POST请求
 from .models import AssessmentResult
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 
 
 def index_view(request):
@@ -33,6 +33,7 @@ def game0_view(request):
     return render(request, 'game0.html',context)
 def game1_view(request):
     result_id = request.session.get('result_id')
+    current_game_name = 'game1'
     context = {
         'game_id': 1,
         'result_id': result_id,
@@ -42,6 +43,7 @@ def game1_view(request):
     return render(request, 'game1.html',context)
 def game2_view(request):
     result_id = request.session.get('result_id')
+    current_game_name = 'game2'
     context = {
         'game_id': 2,
         'result_id': result_id,
