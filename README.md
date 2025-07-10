@@ -3,6 +3,10 @@
 
 [Zh_cn 项目简介](项目简介.md) 
 
+[Zh_cn 用户手册](用户手册.md)
+
+[Zh_cn 用户故事](用户故事.md)
+
 
 ### Mission Statement:
 
