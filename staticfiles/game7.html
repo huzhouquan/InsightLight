@@ -110,9 +110,21 @@ $(document).ready(function() {
 
     // --- 1. 游戏数据与状态管理 ---
     const gameRounds = [
-        { category: "水果", items: { "苹果": true, "香蕉": true, "橙子": true, "胡萝卜": false }, images: { "苹果": "https://img.picui.cn/free/2025/07/09/686e0877383fa.webp", "香蕉": "https://img.picui.cn/free/2025/07/09/686e087771d4c.webp", "橙子": "https://img.picui.cn/free/2025/07/09/686e0882a0605.webp", "胡萝卜": "https://img.picui.cn/free/2025/07/09/686e08800efc7.webp" } },
-        { category: "动物", items: { "狗": true, "猫": true, "兔子": true, "树": false }, images: { "狗": "https://img.picui.cn/free/2025/07/09/686e0877df363.webp", "猫": "https://img.picui.cn/free/2025/07/09/686e087e3f962.webp", "兔子": "https://img.picui.cn/free/2025/07/09/686e087e9f559.webp", "树": "https://img.picui.cn/free/2025/07/09/686e0878154e1.webp" } },
-        { category: "交通工具", items: { "汽车": true, "自行车": true, "摩托车": true, "大象": false }, images: { "汽车": "https://img.picui.cn/free/2025/07/09/686e087b7c5b4.webp", "自行车": "https://img.picui.cn/free/2025/07/09/686e08829c049.webp", "摩托车": "https://img.picui.cn/free/2025/07/09/686e087dece4f.webp", "大象": "https://img.picui.cn/free/2025/07/09/686e087e87314.webp" } }
+        { category: "水果", items: { "苹果": true, "香蕉": true, "橙子": true, "胡萝卜": false }, 
+        images: {   "苹果": "https://pic1.imgdb.cn/item/687068da58cb8da5c89b1394.webp", 
+                    "香蕉": "https://pic1.imgdb.cn/item/687068da58cb8da5c89b1396.webp", 
+                    "橙子": "https://pic1.imgdb.cn/item/6870690d58cb8da5c89b13b6.webp", 
+                    "胡萝卜": "https://pic1.imgdb.cn/item/687068da58cb8da5c89b1393.webp" } },
+        { category: "动物", items: { "狗": true, "猫": true, "兔子": true, "树": false }, 
+        images: {   "狗": "https://pic1.imgdb.cn/item/6870691b58cb8da5c89b13ca.webp", 
+                    "猫": "https://pic1.imgdb.cn/item/687068da58cb8da5c89b1395.webp", 
+                    "兔子": "https://pic1.imgdb.cn/item/6870690c58cb8da5c89b13b4.webp", 
+                    "树": "https://pic1.imgdb.cn/item/6870690d58cb8da5c89b13b7.webp" } },
+        { category: "交通工具", items: { "汽车": true, "自行车": true, "摩托车": true, "大象": false }, 
+        images: {   "汽车": "https://pic1.imgdb.cn/item/6870690c58cb8da5c89b13b5.webp", 
+                    "自行车": "https://pic1.imgdb.cn/item/687068da58cb8da5c89b1398.webp", 
+                    "摩托车": "https://pic1.imgdb.cn/item/6870690c58cb8da5c89b13b3.webp", 
+                    "大象": "https://pic1.imgdb.cn/item/687068da58cb8da5c89b1397.webp" } }
     ];
     let gameState = {};
 

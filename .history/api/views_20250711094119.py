@@ -116,7 +116,7 @@ def result_view(request):
         'result_id': result_id # 将我们从session中取出的ID传递给模板
     }
     return render(request, 'result.html',context)
-@csrf_exempt 
+@csrf_exempt # 注意：这在开发中很方便，但在生产环境中需要更安全的认证方式
 def result_list_create(request):
     """
     处理“获取所有结果列表”和“创建一个新结果”的逻辑。
@@ -157,6 +157,7 @@ def result_list_create(request):
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+
 @csrf_exempt
 def result_detail_update_delete(request, id):
     """
