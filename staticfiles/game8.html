@@ -6,7 +6,9 @@
     <title>头脑风暴 - 语言能力测试</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-                .toast-notification {
+        .home-button-container { position: fixed; left: 40px; bottom: 40px; z-index: 1000; }
+        .home-button-container .btn { background-color: #10b981; padding: 12px 30px; font-size: 1.1rem; font-weight: 500; color: white; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+            .toast-notification {
             position: fixed;
             top: 20px;
             left: 50%;
@@ -83,12 +85,14 @@
     <textarea id="word-input" placeholder="请在这里输入..."></textarea>
     <button id="startBtn">开始挑战</button>
 </div>
-
+<div class="home-button-container">
+    {% if next_game_url %}
+        <a href="{{ home_url }}" class="btn">返回主页</a>
+    {% endif %}
+</div>
 <div class="next-button-container" style="display: none;">
     {% if next_game_url %}
         <a href="{{ next_game_url }}" class="btn">下一题</a>
-    {% else %}
-        <a href="{% url 'result' %}" class="btn">完成！查看总报告</a>
     {% endif %}
 </div>
 
@@ -148,7 +152,7 @@ $(document).ready(function() {
         $startBtn.prop('disabled', false).text('再玩一次');
         
         const score = calculateScore();
-        alert(`时间到！您一共输入了 ${score.wordCount} 个有效词语，得分: ${score.finalScore}`);
+        // alert(`时间到！您一共输入了 ${score.wordCount} 个有效词语，得分: ${score.finalScore}`);
         
         const currentResultId = $('body').data('result-id');
         updateResult(currentResultId, { "language": score.finalScore });

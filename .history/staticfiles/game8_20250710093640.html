@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>头脑风暴 - 语言能力测试</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+                .toast-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: rgb(0, 0, 0);
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none; /* 初始隐藏 */
+            opacity: 0;
+            transition: opacity 0.5s, top 0.5s;
+        }
+        .toast-notification.show {
+            display: block;
+            top: 40px;
+            opacity: 1;
+        }
+        .toast-notification.success {
+            background-color: #28a745; /* 成功绿色 */
+        }
+        .toast-notification.error {
+            background-color: #dc3545; /* 失败红色 */
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-align: center; background: #f0f4f8; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; padding: 30px 40px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        h1 { margin-bottom: 10px; color: #1f2937; }
+        .instructions { color: #4b5563; margin-bottom: 25px; font-size: 1.2rem; }
+        
+        #timer-display {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 20px;
+        }
+
+        #word-input {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            resize: none;
+            transition: border-color 0.3s;
+        }
+        #word-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        #word-input:disabled {
+            background-color: #f3f4f6;
+        }
+
+        #startBtn { padding: 12px 30px; font-size: 1.2rem; background-color: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: background-color 0.2s; }
+        #startBtn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+        /* “下一题”按钮的样式 (保持不变) */
+        .next-button-container { position: fixed; right: 40px; bottom: 40px; z-index: 1000; }
+        .next-button-container .btn { background-color: #10b981; padding: 12px 30px; font-size: 1.1rem; font-weight: 500; color: white; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    </style>
+</head>
+
+<body data-result-id="{{ result_id }}">
+    <div id="toast" class="toast-notification"></div>
+
+<div class="container">
+    <h1>头脑风暴</h1>
+    <p class="instructions">请在 <strong>60秒</strong> 内，尽可能多地写出你知道的水果名称，每写一个请按一下回车或空格。</p>
+    
+    <div id="timer-display">60</div>
+    <textarea id="word-input" placeholder="请在这里输入..."></textarea>
+    <button id="startBtn">开始挑战</button>
+</div>
+
+<div class="next-button-container" style="display: none;">
+    {% if next_game_url %}
+        <a href="{{ next_game_url }}" class="btn">下一题</a>
+    {% else %}
+        <a href="{% url 'result' %}" class="btn">完成！查看总报告</a>
+    {% endif %}
+</div>
+
+<script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+
+    // --- 1. 游戏状态和配置 ---
+    let gameState = 
+    {
+        timeLeft: 60,
+        timerInterval: null,
+        isGameActive: false
+    };
+
+    // --- DOM 元素缓存 ---
+    const $timerDisplay = $('#timer-display');
+    const $wordInput = $('#word-input');
+    const $startBtn = $('#startBtn');
+
+    // --- 2. 核心函数 ---
+
+    function initGame() {
+        gameState.timeLeft = 60;
+        gameState.isGameActive = false;
+        clearInterval(gameState.timerInterval);
+        
+        $timerDisplay.text(gameState.timeLeft);
+        $wordInput.val('').prop('disabled', true);
+        $startBtn.prop('disabled', false).text('开始挑战');
+        $('.next-button-container').hide();
+    }
+
+    function startGame() {
+        initGame();
+        $startBtn.prop('disabled', true);
+        $wordInput.prop('disabled', false).focus(); // 激活输入框并让光标聚焦
+        
+        gameState.isGameActive = true;
+        gameState.timerInterval = setInterval(updateTimer, 1000);
+    }
+    
+    function updateTimer() {
+        gameState.timeLeft--;
+        $timerDisplay.text(gameState.timeLeft);
+        
+        if (gameState.timeLeft <= 0) {
+            finishGame();
+        }
+    }
+    
+    function finishGame() {
+        gameState.isGameActive = false;
+        clearInterval(gameState.timerInterval);
+        
+        $wordInput.prop('disabled', true);
+        $startBtn.prop('disabled', false).text('再玩一次');
+        
+        const score = calculateScore();
+        alert(`时间到！您一共输入了 ${score.wordCount} 个有效词语，得分: ${score.finalScore}`);
+        
+        const currentResultId = $('body').data('result-id');
+        updateResult(currentResultId, { "language": score.finalScore });
+    }
+    
+    // 计分逻辑
+    function calculateScore() {
+        const text = $wordInput.val();
+        // 使用正则表达式按空格、换行、逗号等分隔符来分割单词
+        const words = text.split(/[\s,，、]+/).filter(word => word.length > 0);
+        const uniqueWords = new Set(words); // 使用Set来自动去重
+        const wordCount = uniqueWords.size;
+        
+        let finalScore = 0;
+        // 计分规则：15个或以上为满分，往下线性递减
+        if (wordCount >= 15) {
+            finalScore = 100;
+        } else {
+            finalScore = Math.round((wordCount / 15) * 50+50);
+        }
+        return { wordCount, finalScore };
+    }
+
+    // AJAX 更新函数
+            function showNotification(message, type) {
+            const $toast = $('#toast');
+            // 设置消息和样式 (success 或 error)
+            $toast.text(message).removeClass('success error').addClass(type);
+            
+            // 显示并触发CSS动画
+            $toast.addClass('show');
+
+            // 3秒后自动隐藏
+            setTimeout(function() {
+                $toast.removeClass('show');
+            }, 3000);
+        }
+        function updateResult(resultId, dataToUpdate) {
+            if (!resultId) { console.error("ID不存在!"); return; }
+            $.ajax({
+                url: `/api/results/${resultId}/`,
+                type: 'PATCH',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToUpdate),
+                success: function(response) {
+                    console.log('更新成功!', response);
+                    showNotification('分数已成功提交！', 'success');
+                    // ✅ 新增3: AJAX请求成功后，显示“下一题”按钮
+                    $('.next-button-container').show();
+                    $('#checkDateBtn').prop('disabled', true); // 禁用“确认日期”按钮
+                },
+                error: function(error) {
+                    console.error('更新失败:', error);
+                    showNotification('提交失败，请稍后再试。', 'error');
+                }
+            });
+        }
+
+
+    // --- 3. 事件绑定与初始化 ---
+    $startBtn.on('click', startGame);
+    initGame(); // 初始化页面
+});
+</script>
+</body>
+</html>
